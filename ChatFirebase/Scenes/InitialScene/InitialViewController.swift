@@ -16,6 +16,8 @@ class InitialViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        let ChatListVC = ChatListCollectionViewController(collectionViewLayout: UICollectionViewFlowLayout())
+        self.present(UINavigationController(rootViewController: ChatListVC), animated: true, completion: nil)
     }
     
     // MARK: - Navigation

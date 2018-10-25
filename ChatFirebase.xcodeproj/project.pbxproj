@@ -13,6 +13,7 @@
 		0B3CC1AA21813DB30084E276 /* CreateUserTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3CC1A921813DB30084E276 /* CreateUserTableViewController.swift */; };
 		0B3CC1AD21813F3F0084E276 /* Login.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0B3CC1AC21813F3F0084E276 /* Login.storyboard */; };
 		0B3CC1AF218140790084E276 /* LoginTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3CC1AE218140790084E276 /* LoginTableViewController.swift */; };
+		0B3CC1B22181638D0084E276 /* ChatListCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3CC1B12181638D0084E276 /* ChatListCollectionViewController.swift */; };
 		0B3D01F8218114E100EEB158 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3D01F7218114E100EEB158 /* AppDelegate.swift */; };
 		0B3D01FA218114E100EEB158 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3D01F9218114E100EEB158 /* ViewController.swift */; };
 		0B3D01FF218114E200EEB158 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0B3D01FE218114E200EEB158 /* Assets.xcassets */; };
@@ -27,6 +28,7 @@
 		0B3CC1A921813DB30084E276 /* CreateUserTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserTableViewController.swift; sourceTree = "<group>"; };
 		0B3CC1AC21813F3F0084E276 /* Login.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Login.storyboard; sourceTree = "<group>"; };
 		0B3CC1AE218140790084E276 /* LoginTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginTableViewController.swift; sourceTree = "<group>"; };
+		0B3CC1B12181638D0084E276 /* ChatListCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListCollectionViewController.swift; sourceTree = "<group>"; };
 		0B3D01F4218114E100EEB158 /* ChatFirebase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatFirebase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B3D01F7218114E100EEB158 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0B3D01F9218114E100EEB158 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -53,6 +55,7 @@
 		0B3CC1A0218138380084E276 /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
+				0B3CC1B02181630B0084E276 /* ChatListScene */,
 				0B3CC1AB21813F290084E276 /* LoginScene */,
 				0B3CC1A621813AA00084E276 /* CreateUserScene */,
 				0B3CC1A12181387A0084E276 /* InitialScene */,
@@ -85,6 +88,14 @@
 				0B3CC1AE218140790084E276 /* LoginTableViewController.swift */,
 			);
 			path = LoginScene;
+			sourceTree = "<group>";
+		};
+		0B3CC1B02181630B0084E276 /* ChatListScene */ = {
+			isa = PBXGroup;
+			children = (
+				0B3CC1B12181638D0084E276 /* ChatListCollectionViewController.swift */,
+			);
+			path = ChatListScene;
 			sourceTree = "<group>";
 		};
 		0B3D01EB218114E100EEB158 = {
@@ -251,6 +262,7 @@
 			files = (
 				0B3CC1AF218140790084E276 /* LoginTableViewController.swift in Sources */,
 				0B3CC1AA21813DB30084E276 /* CreateUserTableViewController.swift in Sources */,
+				0B3CC1B22181638D0084E276 /* ChatListCollectionViewController.swift in Sources */,
 				0B3CC1A5218139100084E276 /* InitialViewController.swift in Sources */,
 				0B3D01FA218114E100EEB158 /* ViewController.swift in Sources */,
 				0B3D01F8218114E100EEB158 /* AppDelegate.swift in Sources */,
