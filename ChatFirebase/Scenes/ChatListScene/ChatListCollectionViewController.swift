@@ -38,6 +38,11 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         return collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath as IndexPath)
     }
     
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let ChatVC = ChatLogController(collectionViewLayout: UICollectionViewFlowLayout())
+        self.present(UINavigationController(rootViewController: ChatVC), animated: true, completion: nil)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: view.frame.width, height: 100)
     }
@@ -132,23 +137,6 @@ class FriendCell: BaseCell {
         
         containerView.addConstraintsWithFormat(format: "V:[v0(20)]|", views: hasReadImageView)
     }
-    
-}
-
-extension UIView {
-    
-    func addConstraintsWithFormat(format: String, views: UIView...) {
-        
-        var viewsDictionary = [String: UIView]()
-        for (index, view) in views.enumerated() {
-            let key = "v\(index)"
-            viewsDictionary[key] = view
-            view.translatesAutoresizingMaskIntoConstraints = false
-        }
-        
-        addConstraints(NSLayoutConstraint.constraints(withVisualFormat: format, options: NSLayoutConstraint.FormatOptions(), metrics: nil, views: viewsDictionary))
-    }
-    
 }
 
 class BaseCell: UICollectionViewCell {
