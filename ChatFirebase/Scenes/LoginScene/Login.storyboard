@@ -127,6 +127,7 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Ingresar" id="4Gy-ag-pnl"/>
                     <connections>
+                        <outlet property="emailTextField" destination="Uhh-Gn-iJi" id="Rki-KG-d2k"/>
                         <outlet property="passwordTextField" destination="ZQM-aA-wzF" id="Yfh-nu-gV5"/>
                     </connections>
                 </tableViewController>
