@@ -15,6 +15,13 @@ class LoginTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.title = "Ingresar"
+        let cancelBarButtonItem = UIBarButtonItem(image: UIImage(named: "CancelIcon"), style: .plain, target: self, action: #selector(cancelButtonTapped))
+        self.navigationItem.rightBarButtonItem = cancelBarButtonItem
+    }
+    
+    @objc func cancelButtonTapped() {
+        self.dismiss(animated: true, completion: nil)
     }
 
     @IBAction func loginButtonTapped(_ sender: UIButton) {

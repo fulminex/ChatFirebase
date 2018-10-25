@@ -9,10 +9,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Ingresar a Tiempo Libre en la U-->
+        <!--Ingresar-->
         <scene sceneID="hkf-Sq-Pgs">
             <objects>
-                <tableViewController id="WVs-d5-UQq" customClass="LoginViewController" customModule="TiempoLibreEnLaU" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="LoginViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="WVs-d5-UQq" customClass="LoginTableViewController" customModule="ChatFirebase" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" id="8dT-Vj-ajK">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -125,14 +125,14 @@
                             <outlet property="delegate" destination="WVs-d5-UQq" id="PSG-ka-dHg"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Ingresar a Tiempo Libre en la U" id="4Gy-ag-pnl"/>
+                    <navigationItem key="navigationItem" title="Ingresar" id="4Gy-ag-pnl"/>
                     <connections>
                         <outlet property="passwordTextField" destination="ZQM-aA-wzF" id="Yfh-nu-gV5"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="d1g-0h-Th9" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1585" y="472"/>
+            <point key="canvasLocation" x="2524" y="471.8140929535233"/>
         </scene>
     </scenes>
     <resources>
