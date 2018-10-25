@@ -7,19 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0B3CC1A3218138A50084E276 /* Initial.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0B3CC1A2218138A50084E276 /* Initial.storyboard */; };
+		0B3CC1A5218139100084E276 /* InitialViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3CC1A4218139100084E276 /* InitialViewController.swift */; };
+		0B3CC1A821813AFE0084E276 /* CreateUser.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0B3CC1A721813AFE0084E276 /* CreateUser.storyboard */; };
+		0B3CC1AA21813DB30084E276 /* CreateUserTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3CC1A921813DB30084E276 /* CreateUserTableViewController.swift */; };
+		0B3CC1AD21813F3F0084E276 /* Login.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0B3CC1AC21813F3F0084E276 /* Login.storyboard */; };
+		0B3CC1AF218140790084E276 /* LoginTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3CC1AE218140790084E276 /* LoginTableViewController.swift */; };
 		0B3D01F8218114E100EEB158 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3D01F7218114E100EEB158 /* AppDelegate.swift */; };
 		0B3D01FA218114E100EEB158 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3D01F9218114E100EEB158 /* ViewController.swift */; };
-		0B3D01FD218114E100EEB158 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0B3D01FB218114E100EEB158 /* Main.storyboard */; };
 		0B3D01FF218114E200EEB158 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0B3D01FE218114E200EEB158 /* Assets.xcassets */; };
 		0B3D0202218114E200EEB158 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0B3D0200218114E200EEB158 /* LaunchScreen.storyboard */; };
 		911E0701AC004E58291B61DD /* Pods_ChatFirebase.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DAC8D98FD9B22450EBAAAAFC /* Pods_ChatFirebase.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0B3CC1A2218138A50084E276 /* Initial.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Initial.storyboard; sourceTree = "<group>"; };
+		0B3CC1A4218139100084E276 /* InitialViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitialViewController.swift; sourceTree = "<group>"; };
+		0B3CC1A721813AFE0084E276 /* CreateUser.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = CreateUser.storyboard; sourceTree = "<group>"; };
+		0B3CC1A921813DB30084E276 /* CreateUserTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserTableViewController.swift; sourceTree = "<group>"; };
+		0B3CC1AC21813F3F0084E276 /* Login.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Login.storyboard; sourceTree = "<group>"; };
+		0B3CC1AE218140790084E276 /* LoginTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginTableViewController.swift; sourceTree = "<group>"; };
 		0B3D01F4218114E100EEB158 /* ChatFirebase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatFirebase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B3D01F7218114E100EEB158 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0B3D01F9218114E100EEB158 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		0B3D01FC218114E100EEB158 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		0B3D01FE218114E200EEB158 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0B3D0201218114E200EEB158 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0B3D0203218114E200EEB158 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -40,6 +50,43 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0B3CC1A0218138380084E276 /* Scenes */ = {
+			isa = PBXGroup;
+			children = (
+				0B3CC1AB21813F290084E276 /* LoginScene */,
+				0B3CC1A621813AA00084E276 /* CreateUserScene */,
+				0B3CC1A12181387A0084E276 /* InitialScene */,
+			);
+			path = Scenes;
+			sourceTree = "<group>";
+		};
+		0B3CC1A12181387A0084E276 /* InitialScene */ = {
+			isa = PBXGroup;
+			children = (
+				0B3CC1A2218138A50084E276 /* Initial.storyboard */,
+				0B3CC1A4218139100084E276 /* InitialViewController.swift */,
+			);
+			path = InitialScene;
+			sourceTree = "<group>";
+		};
+		0B3CC1A621813AA00084E276 /* CreateUserScene */ = {
+			isa = PBXGroup;
+			children = (
+				0B3CC1A721813AFE0084E276 /* CreateUser.storyboard */,
+				0B3CC1A921813DB30084E276 /* CreateUserTableViewController.swift */,
+			);
+			path = CreateUserScene;
+			sourceTree = "<group>";
+		};
+		0B3CC1AB21813F290084E276 /* LoginScene */ = {
+			isa = PBXGroup;
+			children = (
+				0B3CC1AC21813F3F0084E276 /* Login.storyboard */,
+				0B3CC1AE218140790084E276 /* LoginTableViewController.swift */,
+			);
+			path = LoginScene;
+			sourceTree = "<group>";
+		};
 		0B3D01EB218114E100EEB158 = {
 			isa = PBXGroup;
 			children = (
@@ -61,9 +108,9 @@
 		0B3D01F6218114E100EEB158 /* ChatFirebase */ = {
 			isa = PBXGroup;
 			children = (
+				0B3CC1A0218138380084E276 /* Scenes */,
 				0B3D01F7218114E100EEB158 /* AppDelegate.swift */,
 				0B3D01F9218114E100EEB158 /* ViewController.swift */,
-				0B3D01FB218114E100EEB158 /* Main.storyboard */,
 				0B3D01FE218114E200EEB158 /* Assets.xcassets */,
 				0B3D0200218114E200EEB158 /* LaunchScreen.storyboard */,
 				0B3D0203218114E200EEB158 /* Info.plist */,
@@ -150,7 +197,9 @@
 			files = (
 				0B3D0202218114E200EEB158 /* LaunchScreen.storyboard in Resources */,
 				0B3D01FF218114E200EEB158 /* Assets.xcassets in Resources */,
-				0B3D01FD218114E100EEB158 /* Main.storyboard in Resources */,
+				0B3CC1A3218138A50084E276 /* Initial.storyboard in Resources */,
+				0B3CC1AD21813F3F0084E276 /* Login.storyboard in Resources */,
+				0B3CC1A821813AFE0084E276 /* CreateUser.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -200,6 +249,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0B3CC1AF218140790084E276 /* LoginTableViewController.swift in Sources */,
+				0B3CC1AA21813DB30084E276 /* CreateUserTableViewController.swift in Sources */,
+				0B3CC1A5218139100084E276 /* InitialViewController.swift in Sources */,
 				0B3D01FA218114E100EEB158 /* ViewController.swift in Sources */,
 				0B3D01F8218114E100EEB158 /* AppDelegate.swift in Sources */,
 			);
@@ -208,14 +260,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		0B3D01FB218114E100EEB158 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				0B3D01FC218114E100EEB158 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		0B3D0200218114E200EEB158 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -352,7 +396,10 @@
 				DEVELOPMENT_TEAM = 6XLK5Y2G8X;
 				INFOPLIST_FILE = ChatFirebase/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ulima.ChatFirebase;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
@@ -369,7 +416,10 @@
 				DEVELOPMENT_TEAM = 6XLK5Y2G8X;
 				INFOPLIST_FILE = ChatFirebase/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.ulima.ChatFirebase;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.2;
