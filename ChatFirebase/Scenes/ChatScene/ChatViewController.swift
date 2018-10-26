@@ -37,8 +37,6 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
     }()
     
     @objc func handleSend() {
-        //TODO: Validar que tenga texto el inputTextField
-//        print(inputTextField.text ?? "No se encontró texto")
         guard !(inputTextField.text?.isEmpty ?? false) else { return }
         let message = Message(text:inputTextField.text!, user: User(name:"Angel Herrera", profileImage: UIImage(named: "UserIcon")!), isSender: false)
         messages.append(message)
@@ -48,24 +46,7 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         
         collectionView?.insertItems(at: [insertionIndexPath])
         collectionView?.scrollToItem(at: insertionIndexPath, at: .bottom, animated: true)
-//        scrollToBottomAnimated(animated: true)
-        
         inputTextField.text = nil
-    }
-    
-    func scrollToBottomAnimated(animated: Bool) {
-        guard self.collectionView.numberOfSections > 0 else{
-            return
-        }
-        let items = self.collectionView.numberOfItems(inSection: 0)
-        if items == 0 { return }
-        let collectionViewContentHeight = self.collectionView.collectionViewLayout.collectionViewContentSize.height
-        let isContentTooSmall: Bool = (collectionViewContentHeight < self.collectionView.bounds.size.height)
-        if isContentTooSmall {
-            self.collectionView.scrollRectToVisible(CGRect(x: 0, y: collectionViewContentHeight + 40, width: 1, height: 1), animated: animated)
-            return
-        }
-        self.collectionView.scrollToItem(at: NSIndexPath(item: items - 1, section: 0) as IndexPath, at: .bottom, animated: animated)
     }
     
     var bottomConstraint: NSLayoutConstraint?
@@ -214,9 +195,6 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
                 cell.messageTextView.textColor = UIColor.black
                 
             } else {
-                
-                //outgoing sending message
-                
                 cell.messageTextView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 16 - 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
                 
                 cell.textBubbleView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 8 - 16 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 10, height: estimatedFrame.height + 20 + 6)
@@ -264,7 +242,7 @@ class ChatLogMessageCell: BaseCell {
     
     let textBubbleView: UIView = {
         let view = UIView()
-        //        view.backgroundColor = UIColor(white: 0.95, alpha: 1)
+//        view.backgroundColor = UIColor(white: 0.95, alpha: 1)
         view.layer.cornerRadius = 15
         view.layer.masksToBounds = true
         return view
@@ -297,7 +275,6 @@ class ChatLogMessageCell: BaseCell {
         addSubview(profileImageView)
         addConstraintsWithFormat(format: "H:|-8-[v0(30)]", views: profileImageView)
         addConstraintsWithFormat(format: "V:[v0(30)]|", views: profileImageView)
-//        profileImageView.backgroundColor = UIColor.red
         
         textBubbleView.addSubview(bubbleImageView)
         textBubbleView.addConstraintsWithFormat(format: "H:|[v0]|", views: bubbleImageView)
