@@ -55,7 +55,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     }
 }
 
-class FriendCell: UICollectionViewCell {
+class FriendCell: BaseCell {
     
     let profileImageView: UIImageView = {
         let imageView = UIImageView()
