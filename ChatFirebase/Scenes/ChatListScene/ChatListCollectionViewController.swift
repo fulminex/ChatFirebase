@@ -30,6 +30,13 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         collectionView?.register(FriendCell.self, forCellWithReuseIdentifier: cellId)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if #available(iOS 11.0, *) {
+            self.navigationController?.navigationBar.prefersLargeTitles = true
+        }
+    }
+    
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 3
     }
@@ -39,8 +46,8 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let ChatVC = ChatLogController(collectionViewLayout: UICollectionViewFlowLayout())
-        self.present(UINavigationController(rootViewController: ChatVC), animated: true, completion: nil)
+        let ChatVC = ChatController(collectionViewLayout: UICollectionViewFlowLayout())
+        self.navigationController?.pushViewController(ChatVC, animated: true)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -48,7 +55,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     }
 }
 
-class FriendCell: BaseCell {
+class FriendCell: UICollectionViewCell {
     
     let profileImageView: UIImageView = {
         let imageView = UIImageView()

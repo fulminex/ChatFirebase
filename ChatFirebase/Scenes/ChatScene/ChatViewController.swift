@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ChatLogController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
+class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
     
     private let cellId = "cellId"
     
@@ -37,7 +37,7 @@ class ChatLogController: UICollectionViewController, UICollectionViewDelegateFlo
     }()
     
     @objc func handleSend() {
-        // TODO: Validar que tenga texto el inputTextField
+        //TODO: Validar que tenga texto el inputTextField
 //        print(inputTextField.text ?? "No se encontró texto")
         guard !(inputTextField.text?.isEmpty ?? false) else { return }
         let message = Message(text:inputTextField.text!, user: User(name:"Angel Herrera", profileImage: UIImage(named: "UserIcon")!), isSender: false)
@@ -48,7 +48,24 @@ class ChatLogController: UICollectionViewController, UICollectionViewDelegateFlo
         
         collectionView?.insertItems(at: [insertionIndexPath])
         collectionView?.scrollToItem(at: insertionIndexPath, at: .bottom, animated: true)
+//        scrollToBottomAnimated(animated: true)
+        
         inputTextField.text = nil
+    }
+    
+    func scrollToBottomAnimated(animated: Bool) {
+        guard self.collectionView.numberOfSections > 0 else{
+            return
+        }
+        let items = self.collectionView.numberOfItems(inSection: 0)
+        if items == 0 { return }
+        let collectionViewContentHeight = self.collectionView.collectionViewLayout.collectionViewContentSize.height
+        let isContentTooSmall: Bool = (collectionViewContentHeight < self.collectionView.bounds.size.height)
+        if isContentTooSmall {
+            self.collectionView.scrollRectToVisible(CGRect(x: 0, y: collectionViewContentHeight + 40, width: 1, height: 1), animated: animated)
+            return
+        }
+        self.collectionView.scrollToItem(at: NSIndexPath(item: items - 1, section: 0) as IndexPath, at: .bottom, animated: animated)
     }
     
     var bottomConstraint: NSLayoutConstraint?
@@ -76,6 +93,12 @@ class ChatLogController: UICollectionViewController, UICollectionViewDelegateFlo
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if #available(iOS 11.0, *) {
+            self.navigationController?.navigationBar.prefersLargeTitles = false
+        }
+        
+        self.title = "Nombre del usuario 1, Nombre del usuario 2, etc."
+        
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Simulate", style: .plain, target: self, action: #selector(simulate))
         
         tabBarController?.tabBar.isHidden = true
@@ -90,6 +113,8 @@ class ChatLogController: UICollectionViewController, UICollectionViewDelegateFlo
         
         bottomConstraint = NSLayoutConstraint(item: messageInputContainerView, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: 1, constant: 0)
         view.addConstraint(bottomConstraint!)
+        
+        collectionView?.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 50, right: 0)
         
         setupInputComponents()
         
@@ -156,10 +181,6 @@ class ChatLogController: UICollectionViewController, UICollectionViewDelegateFlo
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//        if let count = messages.count {
-//            print("Se creó \(count) celdas")
-//            return count
-//        }
         return messages.count
     }
     
