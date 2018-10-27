@@ -19,6 +19,8 @@
 		0B3D01FF218114E200EEB158 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0B3D01FE218114E200EEB158 /* Assets.xcassets */; };
 		0B3D0202218114E200EEB158 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0B3D0200218114E200EEB158 /* LaunchScreen.storyboard */; };
 		0BBDD8092183D5A700B48199 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0BBDD8082183D5A700B48199 /* GoogleService-Info.plist */; };
+		0BBDD80B2183DAA300B48199 /* UIImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BBDD80A2183DAA300B48199 /* UIImageExtensions.swift */; };
+		0BBDD80D2183DBAE00B48199 /* UIViewControllerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BBDD80C2183DBAE00B48199 /* UIViewControllerExtensions.swift */; };
 		539C2973218260E200DF7F0D /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539C2972218260E200DF7F0D /* ChatViewController.swift */; };
 		539C29762182627900DF7F0D /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539C29752182627900DF7F0D /* Message.swift */; };
 		539C2979218271D900DF7F0D /* UIViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539C2978218271D900DF7F0D /* UIViewExtensions.swift */; };
@@ -40,6 +42,8 @@
 		0B3D0201218114E200EEB158 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0B3D0203218114E200EEB158 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0BBDD8082183D5A700B48199 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		0BBDD80A2183DAA300B48199 /* UIImageExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensions.swift; sourceTree = "<group>"; };
+		0BBDD80C2183DBAE00B48199 /* UIViewControllerExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerExtensions.swift; sourceTree = "<group>"; };
 		502FBC34E92D3EDC41568B40 /* Pods-ChatFirebase.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ChatFirebase.release.xcconfig"; path = "Pods/Target Support Files/Pods-ChatFirebase/Pods-ChatFirebase.release.xcconfig"; sourceTree = "<group>"; };
 		539C2972218260E200DF7F0D /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		539C29752182627900DF7F0D /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
@@ -160,6 +164,8 @@
 		539C2977218271B700DF7F0D /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				0BBDD80A2183DAA300B48199 /* UIImageExtensions.swift */,
+				0BBDD80C2183DBAE00B48199 /* UIViewControllerExtensions.swift */,
 				539C2978218271D900DF7F0D /* UIViewExtensions.swift */,
 			);
 			path = Extensions;
@@ -306,12 +312,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				0B3CC1AF218140790084E276 /* LoginTableViewController.swift in Sources */,
+				0BBDD80D2183DBAE00B48199 /* UIViewControllerExtensions.swift in Sources */,
 				0B3CC1AA21813DB30084E276 /* CreateUserTableViewController.swift in Sources */,
 				0B3CC1B22181638D0084E276 /* ChatListCollectionViewController.swift in Sources */,
 				539C2973218260E200DF7F0D /* ChatViewController.swift in Sources */,
 				0B3CC1A5218139100084E276 /* InitialViewController.swift in Sources */,
 				539C29762182627900DF7F0D /* Message.swift in Sources */,
 				0B3D01FA218114E100EEB158 /* ViewController.swift in Sources */,
+				0BBDD80B2183DAA300B48199 /* UIImageExtensions.swift in Sources */,
 				539C2979218271D900DF7F0D /* UIViewExtensions.swift in Sources */,
 				0B3D01F8218114E100EEB158 /* AppDelegate.swift in Sources */,
 			);
