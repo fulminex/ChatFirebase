@@ -7,13 +7,20 @@
 //
 
 import UIKit
+import Firebase
 
 class ChatListCollectionViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
+    
+    var ref: DatabaseReference!
+    
+    let displayedChannels: [DisplayedChannel] = []
     
     private let cellId = "cellId"
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        ref = Database.database().reference()
         
         collectionView?.dataSource = self
         collectionView?.delegate = self
@@ -28,6 +35,11 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         collectionView?.alwaysBounceVertical = true
         
         collectionView?.register(FriendCell.self, forCellWithReuseIdentifier: cellId)
+        
+        let createChatButtonItem = UIBarButtonItem(image: UIImage(named: "PlusIcon"), style: .plain, target: self, action: #selector(createChat))
+        let logoutButtonItem = UIBarButtonItem(image: UIImage(named: "LogoutIcon"), style: .plain, target: self, action: #selector(logout))
+        self.navigationItem.rightBarButtonItem = createChatButtonItem
+        self.navigationItem.leftBarButtonItem = logoutButtonItem
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -37,12 +49,75 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         }
     }
     
+    @objc func logout() {
+        do {
+            try Auth.auth().signOut()
+        } catch let signOutError as NSError {
+            print ("Error signing out: %@", signOutError)
+            return
+        }
+        self.dismiss(animated: true, completion: nil)
+    }
+    
+    @objc func createChat() {
+        let alert = UIAlertController(title: "Aviso", message: "Ingresa el correo del usuario con quien quieras chatear", preferredStyle: .alert)
+        alert.addTextField { (textField) in
+            textField.placeholder = "Email"
+        }
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak alert] (_) in
+            let textField = alert?.textFields![0]
+            guard let email = textField?.text, !email.isEmpty, email.contains("@")  else {
+                let alert = UIAlertController(title: "Aviso", message: "Ingresa un correo válido", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "ok", style: .cancel, handler: nil))
+                self.present(alert, animated: true)
+                return
+            }
+            self.ref.child("users").observe(.childAdded, with: { (snapshot) -> Void in
+                print(snapshot.key)
+                
+                if let dictionary = snapshot.value as? [String : AnyObject] {
+                    if dictionary["correo"] as! String == email {
+                        let newChannelId = UUID().uuidString
+                        self.ref.child("Channels").setValue([newChannelId:""])
+                        self.ref.child("users/\(Auth.auth().currentUser!.uid)/channelList").setValue([newChannelId : snapshot.key])
+                        self.ref.child("users/\(snapshot.key)/channelList").setValue([newChannelId : Auth.auth().currentUser!.uid])
+                    }
+                    print(dictionary["nombre"] as! String)
+//                    let displayedChannel = DisplayedChannel(
+//                        uid: "",
+//                        user: User(
+//                            uid: snapshot.key,
+//                            name: dictionary["nombre"] as! String,
+//                            gender: dictionary["genero"] as! String,
+//                            profileImageRaw: dictionary["profileImageURL"] as! String
+//                        )
+//                    )
+                }
+                
+//                                self.tableView.insertRows(at: [IndexPath(row: self.comments.count-1, section: self.kSectionComments)], with: UITableViewRowAnimation.automatic)
+            })
+            if false {
+                let alert = UIAlertController(title: "Aviso", message: "No se encontró un usuario con el correo indicado", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "ok", style: .cancel, handler: nil))
+                self.present(alert, animated: true)
+            }
+        }))
+        self.present(alert, animated: true, completion: nil)
+        
+    }
+    
+    func fetchChannels() {
+        
+    }
+    
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 3
+        return displayedChannels.count
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        return collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath as IndexPath)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath as IndexPath) as! FriendCell
+        
+        return cell
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

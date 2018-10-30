@@ -9,12 +9,26 @@
 import UIKit
 
 struct Message {
+    let uid: String
     let text: String
-    let user: User
-    let isSender: Bool
+    let sender: User
+    let timeInterval: Double
 }
 
 struct User {
+    let uid: String
+    let email: String
     let name: String
-    let profileImage: UIImage
+    let gender: String
+    let profileImageRaw: String
+}
+
+struct Channel {
+    let uid: String
+    let messages: [Message]
+}
+
+struct DisplayedChannel {
+    let uid: String
+    let user: User
 }
