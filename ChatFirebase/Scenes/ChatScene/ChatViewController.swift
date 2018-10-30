@@ -26,6 +26,13 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         return textField
     }()
     
+    let cameraButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(named: "CameraIcon"), for: .normal)
+        button.addTarget(self, action: #selector(handleSend), for: .touchUpInside)
+        return button
+    }()
+    
     lazy var sendButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Enviar", for: .normal)
@@ -148,12 +155,14 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         let topBorderView = UIView()
         topBorderView.backgroundColor = UIColor(white: 0.5, alpha: 0.5)
         
+        messageInputContainerView.addSubview(cameraButton)
         messageInputContainerView.addSubview(inputTextField)
         messageInputContainerView.addSubview(sendButton)
         messageInputContainerView.addSubview(topBorderView)
         
-        messageInputContainerView.addConstraintsWithFormat(format: "H:|-8-[v0][v1(60)]|", views: inputTextField, sendButton)
+        messageInputContainerView.addConstraintsWithFormat(format: "H:|[v0(60)]-8-[v1][v2(60)]|", views: cameraButton, inputTextField, sendButton)
         
+        messageInputContainerView.addConstraintsWithFormat(format: "V:|[v0]|", views: cameraButton)
         messageInputContainerView.addConstraintsWithFormat(format: "V:|[v0]|", views: inputTextField)
         messageInputContainerView.addConstraintsWithFormat(format: "V:|[v0]|", views: sendButton)
         
