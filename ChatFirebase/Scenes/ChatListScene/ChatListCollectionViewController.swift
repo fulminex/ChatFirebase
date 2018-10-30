@@ -8,12 +8,14 @@
 
 import UIKit
 import Firebase
+import Kingfisher
 
 class ChatListCollectionViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
     
     var ref: DatabaseReference!
+    var usersRef: DatabaseReference!
     
-    let displayedChannels: [DisplayedChannel] = []
+    var displayedChannels: [DisplayedChannel] = []
     
     private let cellId = "cellId"
     
@@ -21,6 +23,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         super.viewDidLoad()
         
         ref = Database.database().reference()
+        usersRef = ref.child("users")
         
         collectionView?.dataSource = self
         collectionView?.delegate = self
@@ -40,6 +43,8 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         let logoutButtonItem = UIBarButtonItem(image: UIImage(named: "LogoutIcon"), style: .plain, target: self, action: #selector(logout))
         self.navigationItem.rightBarButtonItem = createChatButtonItem
         self.navigationItem.leftBarButtonItem = logoutButtonItem
+        
+        observeChannelsChanges()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -68,37 +73,30 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
             let textField = alert?.textFields![0]
             guard let email = textField?.text, !email.isEmpty, email.contains("@")  else {
                 let alert = UIAlertController(title: "Aviso", message: "Ingresa un correo válido", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "ok", style: .cancel, handler: nil))
+                alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
                 self.present(alert, animated: true)
                 return
             }
-            self.ref.child("users").observe(.childAdded, with: { (snapshot) -> Void in
-                print(snapshot.key)
-                
-                if let dictionary = snapshot.value as? [String : AnyObject] {
-                    if dictionary["correo"] as! String == email {
-                        let newChannelId = UUID().uuidString
-                        self.ref.child("Channels").setValue([newChannelId:""])
-                        self.ref.child("users/\(Auth.auth().currentUser!.uid)/channelList").setValue([newChannelId : snapshot.key])
-                        self.ref.child("users/\(snapshot.key)/channelList").setValue([newChannelId : Auth.auth().currentUser!.uid])
-                    }
-                    print(dictionary["nombre"] as! String)
-//                    let displayedChannel = DisplayedChannel(
-//                        uid: "",
-//                        user: User(
-//                            uid: snapshot.key,
-//                            name: dictionary["nombre"] as! String,
-//                            gender: dictionary["genero"] as! String,
-//                            profileImageRaw: dictionary["profileImageURL"] as! String
-//                        )
-//                    )
-                }
-                
-//                                self.tableView.insertRows(at: [IndexPath(row: self.comments.count-1, section: self.kSectionComments)], with: UITableViewRowAnimation.automatic)
+            guard !self.displayedChannels.contains(where: {$0.user.email == email}) else {
+                let alert = UIAlertController(title: "Aviso", message: "Ya tienes un chat creado con ese usuario, escoge uno nuevo", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                self.present(alert, animated: true)
+                return
+            }
+            self.usersRef.observeSingleEvent(of: .value, with: { (snapshot) in
+                guard let users = snapshot.value as? [String : AnyObject] else { return }
+                users.forEach({ (key, value) in
+                    guard let user = value as? [String : AnyObject] else { return }
+                    guard email == user["correo"] as! String else { return }
+                    let newChannelId = UUID().uuidString
+                    self.ref.child("Channels/\(newChannelId)").setValue("")
+                    self.ref.child("users/\(Auth.auth().currentUser!.uid)/channelList/\(newChannelId)").setValue(key)
+                    self.ref.child("users/\(key)/channelList/\(newChannelId)").setValue(Auth.auth().currentUser!.uid)
+                })
             })
             if false {
                 let alert = UIAlertController(title: "Aviso", message: "No se encontró un usuario con el correo indicado", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "ok", style: .cancel, handler: nil))
+                alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
                 self.present(alert, animated: true)
             }
         }))
@@ -106,8 +104,37 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         
     }
     
-    func fetchChannels() {
-        
+    func observeChannelsChanges() {
+        self.ref.child("users").child(Auth.auth().currentUser!.uid).child("channelList").observe(.childAdded) { (snapshot) in
+            print(snapshot.key)
+            self.fetchChannels()
+        }
+    }
+    
+    @objc func fetchChannels() {
+        self.usersRef.child(Auth.auth().currentUser!.uid).observeSingleEvent(of: .value, with: { (snapshot) in
+            guard let currentUser = snapshot.value as? [String : AnyObject] else { return }
+            guard let channelsList = currentUser["channelList"] as? [String : AnyObject] else { return }
+            channelsList.forEach({ (key, value) in
+                self.usersRef.child("\(value)").observeSingleEvent(of: .value, with: { (snap) in
+                    guard let user = snap.value as? [String : AnyObject] else { return }
+                    let displayedChannel = DisplayedChannel(
+                        uid: key,
+                        user: User(
+                            uid: value as! String,
+                            email: user["correo"] as! String,
+                            name: user["nombre"] as! String,
+                            gender: user["genero"] as! String,
+                            profileImageRaw: user["profileImageURL"] as! String
+                    ))
+                    guard !self.displayedChannels.contains(where: {$0.uid == displayedChannel.uid}) else { return }
+                    self.displayedChannels.append(displayedChannel)
+                    DispatchQueue.main.async {
+                        self.collectionView.reloadData()
+                    }
+                })
+            })
+        })
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -116,7 +143,8 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath as IndexPath) as! FriendCell
-        
+        cell.nameLabel.text = self.displayedChannels[indexPath.row].user.email
+        cell.profileImageView.kf.setImage(with: URL(string: self.displayedChannels[indexPath.row].user.profileImageRaw))
         return cell
     }
     
