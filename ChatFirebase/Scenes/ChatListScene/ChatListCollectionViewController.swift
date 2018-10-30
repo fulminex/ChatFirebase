@@ -89,7 +89,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
                     guard let user = value as? [String : AnyObject] else { return }
                     guard email == user["correo"] as! String else { return }
                     let newChannelId = UUID().uuidString
-                    self.ref.child("Channels/\(newChannelId)").setValue("")
+                    self.ref.child("channels/\(newChannelId)").setValue("")
                     self.ref.child("users/\(Auth.auth().currentUser!.uid)/channelList/\(newChannelId)").setValue(key)
                     self.ref.child("users/\(key)/channelList/\(newChannelId)").setValue(Auth.auth().currentUser!.uid)
                 })
@@ -150,6 +150,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let ChatVC = ChatController(collectionViewLayout: UICollectionViewFlowLayout())
+        ChatVC.channelUID = displayedChannels[indexPath.row].uid
         self.navigationController?.pushViewController(ChatVC, animated: true)
     }
     

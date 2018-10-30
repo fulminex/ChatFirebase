@@ -7,8 +7,14 @@
 //
 
 import UIKit
+import Firebase
 
 class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
+    
+    var channelUID: String!
+    
+    var ref: DatabaseReference!
+    var channelRef: DatabaseReference!
     
     private let cellId = "cellId"
     
@@ -110,6 +116,9 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardNotification), name: UIResponder.keyboardWillHideNotification, object: nil)
         
+        ref = Database.database().reference()
+        channelRef = ref.child("channels")
+        
 //        let message = Message(text:"Primer Mensaje", sender: User(name:"Anton", profileImage: UIImage(named: "UserIcon")!), isSender: true)
 //        print(message.sender.name)
 //        print(message.isSender)
@@ -118,6 +127,10 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
 //        self.messages.append(message2)
 //        print(self.messages.count)
 //        collectionView.reloadData()
+    }
+    
+    func observeMessages() {
+        
     }
     
     @objc func handleKeyboardNotification(notification: NSNotification) {
