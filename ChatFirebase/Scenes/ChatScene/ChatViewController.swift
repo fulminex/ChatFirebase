@@ -35,7 +35,7 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
     let cameraButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "CameraIcon"), for: .normal)
-        button.addTarget(self, action: #selector(handleSend), for: .touchUpInside)
+        //button.addTarget(self, action: #selector(handleSend), for: .touchUpInside)
         return button
     }()
     
