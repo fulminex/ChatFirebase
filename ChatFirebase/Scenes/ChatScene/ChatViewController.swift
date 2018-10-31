@@ -10,7 +10,7 @@ import UIKit
 import Firebase
 import Kingfisher
 
-class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
+class ChatController: UICollectionViewController,UIImagePickerControllerDelegate, UINavigationControllerDelegate, UICollectionViewDelegateFlowLayout {
     
     var channelUID: String!
     var friendName: String!
@@ -39,7 +39,7 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
     let cameraButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "CameraIcon"), for: .normal)
-        //button.addTarget(self, action: #selector(handleSend), for: .touchUpInside)
+        button.addTarget(self, action: #selector(openCamera), for: .touchUpInside)
         return button
     }()
     
@@ -64,6 +64,16 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
             ]
         )
         inputTextField.text = nil
+    }
+    
+    @objc func openCamera() {
+        if UIImagePickerController.isSourceTypeAvailable(.camera){
+            let myPickerController = UIImagePickerController()
+            myPickerController.delegate = self
+            myPickerController.sourceType = .camera
+            myPickerController.allowsEditing = false
+            self.present(myPickerController, animated: true, completion: nil)
+        }
     }
     
     var bottomConstraint: NSLayoutConstraint?
