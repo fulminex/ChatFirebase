@@ -122,7 +122,6 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     }
     
     @objc func fetchChannels() {
-        
         self.usersRef.child(Auth.auth().currentUser!.uid).observeSingleEvent(of: .value, with: { (snapshot) in
             guard let currentUser = snapshot.value as? [String : AnyObject] else { return }
             guard let channelsList = currentUser["channelList"] as? [String : AnyObject] else { return }
@@ -159,6 +158,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         cell.nameLabel.text = friend.name
         //TODO: Cambiar el email por el último mensaje
         cell.messageLabel.text = friend.email
+        cell.profileImageView.kf.indicatorType = .activity
         cell.profileImageView.kf.setImage(with: URL(string: friend.profileImageRaw))
         return cell
     }
