@@ -39,7 +39,7 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
     let cameraButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(named: "CameraIcon"), for: .normal)
-        button.addTarget(self, action: #selector(openCamera), for: .touchUpInside)
+        button.addTarget(self, action: #selector(cameraButtonPressed), for: .touchUpInside)
         return button
     }()
     
@@ -66,6 +66,18 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
         inputTextField.text = nil
     }
     
+    @IBAction func cameraButtonPressed() {
+        let alert = UIAlertController(title: "Aviso", message: "Elige desde donde deseas agregar una foto", preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "Abrir cámara", style: .default, handler: { (action) in
+            self.openCamera()
+        }))
+        alert.addAction(UIAlertAction(title: "Abrir librería de fotos", style: .default, handler: { (action) in
+            self.openPhotoLibrary()
+        }))
+        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel, handler: nil))
+        self.present(alert, animated: true)
+    }
+    
     @objc func openCamera() {
         if UIImagePickerController.isSourceTypeAvailable(.camera){
             let myPickerController = UIImagePickerController()
@@ -74,6 +86,38 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
             myPickerController.allowsEditing = false
             self.present(myPickerController, animated: true, completion: nil)
         }
+    }
+    func openPhotoLibrary() {
+        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+            let imagePicker = UIImagePickerController()
+            imagePicker.delegate = self
+            imagePicker.sourceType = .photoLibrary
+            imagePicker.allowsEditing = false
+            self.present(imagePicker, animated: true, completion: nil)
+        }
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        let image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
+        image.resizeImageWith(newSize: CGSize(width: 628, height: 1200))
+        let data = image.jpegData(compressionQuality: 0.9)!
+        
+        let messageImage = Storage.storage().reference().child("channels/\(self.channelUID!)/\(UUID().uuidString).jpg")
+        _ = messageImage.putData(data, metadata: nil) { (metadata, error) in
+            guard error == nil else {
+                print("Error al subir la imagen")
+                return
+            }
+            guard let metadata = metadata else {
+                print("No hay metadata")
+                return
+            }
+            
+        }
+        
+        print(image.size)
+        print("tubi")
+        dismiss(animated:true, completion: nil)
     }
     
     var bottomConstraint: NSLayoutConstraint?
