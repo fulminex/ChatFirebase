@@ -116,9 +116,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     }
     
     func observeChannelsChanges() {
-        UIViewController.removeSpinner(spinner: self.spinner)
         channelListRefHandle = channelListRef.observe(.childAdded) { (snapshot) in
-            self.spinner = UIViewController.displaySpinner(onView: self.view)
             self.fetchChannels()
         }
     }
