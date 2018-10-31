@@ -19,6 +19,8 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     
     var displayedChannels: [DisplayedChannel] = []
     
+    var spinner: UIView!
+    
     private let cellId = "cellId"
     
     override func viewDidLoad() {
@@ -46,6 +48,8 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         let logoutButtonItem = UIBarButtonItem(image: UIImage(named: "LogoutIcon"), style: .plain, target: self, action: #selector(logout))
         self.navigationItem.rightBarButtonItem = createChatButtonItem
         self.navigationItem.leftBarButtonItem = logoutButtonItem
+        
+        spinner = UIViewController.displaySpinner(onView: self.view)
         
         observeChannelsChanges()
     }
@@ -106,6 +110,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
                 }
             })
         }))
+        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel, handler: nil))
         self.present(alert, animated: true, completion: nil)
         
     }
@@ -117,6 +122,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     }
     
     @objc func fetchChannels() {
+        
         self.usersRef.child(Auth.auth().currentUser!.uid).observeSingleEvent(of: .value, with: { (snapshot) in
             guard let currentUser = snapshot.value as? [String : AnyObject] else { return }
             guard let channelsList = currentUser["channelList"] as? [String : AnyObject] else { return }
@@ -132,6 +138,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
                             gender: user["genero"] as! String,
                             profileImageRaw: user["profileImageURL"] as! String
                     ))
+                    UIViewController.removeSpinner(spinner: self.spinner)
                     guard !self.displayedChannels.contains(where: {$0.uid == displayedChannel.uid}) else { return }
                     self.displayedChannels.append(displayedChannel)
                     DispatchQueue.main.async {

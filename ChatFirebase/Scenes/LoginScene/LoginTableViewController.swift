@@ -19,6 +19,7 @@ class LoginTableViewController: UITableViewController {
         self.title = "Ingresar"
         let cancelBarButtonItem = UIBarButtonItem(image: UIImage(named: "CancelIcon"), style: .plain, target: self, action: #selector(cancelButtonTapped))
         self.navigationItem.rightBarButtonItem = cancelBarButtonItem
+        self.tableView.allowsSelection = false
     }
     
     @objc func cancelButtonTapped() {
@@ -26,15 +27,19 @@ class LoginTableViewController: UITableViewController {
     }
 
     @IBAction func loginButtonTapped(_ sender: UIButton) {
+        view.endEditing(true)
+        let spinner = UIViewController.displaySpinner(onView: self.view)
         guard let email = emailTextField.text, email.contains("@"), email.split(separator: "@").count == 2 else {
             let alert = UIAlertController(title: "Aviso", message: "Ingresa un correo válido.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "ok", style: .cancel, handler: nil))
+            UIViewController.removeSpinner(spinner: spinner)
             self.present(alert, animated: true)
             return
         }
         guard let password = passwordTextField.text, password.count > 6 else {
             let alert = UIAlertController(title: "Aviso", message: "Ingresa una contraseña mayor a 6 caracteres.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "ok", style: .cancel, handler: nil))
+            UIViewController.removeSpinner(spinner: spinner)
             self.present(alert, animated: true)
             return
         }
@@ -42,6 +47,7 @@ class LoginTableViewController: UITableViewController {
             guard error == nil else {
                 let alert = UIAlertController(title: "Aviso", message: "Correo y/o contraseña incorrectos.", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "ok", style: .cancel, handler: nil))
+                UIViewController.removeSpinner(spinner: spinner)
                 self.present(alert, animated: true)
                 return
             }
@@ -51,6 +57,7 @@ class LoginTableViewController: UITableViewController {
                 return
             }
             print("usuario logeado exitosamente")
+            UIViewController.removeSpinner(spinner: spinner)
             self.dismiss(animated: true, completion: nil)
         }
     }
