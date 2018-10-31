@@ -57,10 +57,6 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         }
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        channelListRef.removeObserver(withHandle: channelListRefHandle)
-    }
-    
     @objc func logout() {
         do {
             try Auth.auth().signOut()
@@ -68,6 +64,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
             print ("Error signing out: %@", signOutError)
             return
         }
+        channelListRef.removeObserver(withHandle: channelListRefHandle)
         self.dismiss(animated: true, completion: nil)
     }
     
