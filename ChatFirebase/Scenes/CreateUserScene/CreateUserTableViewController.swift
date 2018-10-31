@@ -25,6 +25,7 @@ class CreateUserTableViewController: UITableViewController, UIImagePickerControl
         self.navigationItem.rightBarButtonItem = cancelBarButtonItem
         self.profileImageView.layer.cornerRadius = self.profileImageView.frame.size.width / 2
         self.profileImageView.clipsToBounds = true
+        self.tableView.allowsSelection = false
     }
     
     @objc func cancelButtonTapped() {
@@ -32,6 +33,7 @@ class CreateUserTableViewController: UITableViewController, UIImagePickerControl
     }
 
     @IBAction func createNewUserButtonTapped(_ sender: UIButton) {
+        view.endEditing(true)
         guard let email = emailTextField.text, email.contains("@"), email.split(separator: "@").count == 2 else {
             let alert = UIAlertController(title: "Aviso", message: "Ingresa un correo válido.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "ok", style: .cancel, handler: nil))

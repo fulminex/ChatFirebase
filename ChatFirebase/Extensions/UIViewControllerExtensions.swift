@@ -24,7 +24,7 @@ extension UIViewController {
         return spinnerView
     }
     
-    class func removeSpinner(spinner :UIView) {
+    class func removeSpinner(spinner : UIView) {
         DispatchQueue.main.async {
             spinner.removeFromSuperview()
         }

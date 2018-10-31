@@ -19,6 +19,8 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     
     var displayedChannels: [DisplayedChannel] = []
     
+    var spinner: UIView!
+    
     private let cellId = "cellId"
     
     override func viewDidLoad() {
@@ -46,6 +48,8 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         let logoutButtonItem = UIBarButtonItem(image: UIImage(named: "LogoutIcon"), style: .plain, target: self, action: #selector(logout))
         self.navigationItem.rightBarButtonItem = createChatButtonItem
         self.navigationItem.leftBarButtonItem = logoutButtonItem
+        
+        spinner = UIViewController.displaySpinner(onView: self.view)
         
         observeChannelsChanges()
     }
@@ -89,21 +93,24 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
             }
             self.usersRef.observeSingleEvent(of: .value, with: { (snapshot) in
                 guard let users = snapshot.value as? [String : AnyObject] else { return }
+                var isUserExists = false
                 users.forEach({ (key, value) in
                     guard let user = value as? [String : AnyObject] else { return }
                     guard email == user["correo"] as! String else { return }
+                    isUserExists = true
                     let newChannelId = UUID().uuidString
                     self.ref.child("channels/\(newChannelId)").setValue("")
                     self.ref.child("users/\(Auth.auth().currentUser!.uid)/channelList/\(newChannelId)").setValue(key)
                     self.ref.child("users/\(key)/channelList/\(newChannelId)").setValue(Auth.auth().currentUser!.uid)
                 })
+                if !isUserExists {
+                    let alert = UIAlertController(title: "Aviso", message: "Usuario no encontrado", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                    self.present(alert, animated: true)
+                }
             })
-            if false {
-                let alert = UIAlertController(title: "Aviso", message: "No se encontró un usuario con el correo indicado", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                self.present(alert, animated: true)
-            }
         }))
+        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel, handler: nil))
         self.present(alert, animated: true, completion: nil)
         
     }
@@ -130,6 +137,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
                             gender: user["genero"] as! String,
                             profileImageRaw: user["profileImageURL"] as! String
                     ))
+                    UIViewController.removeSpinner(spinner: self.spinner)
                     guard !self.displayedChannels.contains(where: {$0.uid == displayedChannel.uid}) else { return }
                     self.displayedChannels.append(displayedChannel)
                     DispatchQueue.main.async {
@@ -150,6 +158,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         cell.nameLabel.text = friend.name
         //TODO: Cambiar el email por el último mensaje
         cell.messageLabel.text = friend.email
+        cell.profileImageView.kf.indicatorType = .activity
         cell.profileImageView.kf.setImage(with: URL(string: friend.profileImageRaw))
         return cell
     }
