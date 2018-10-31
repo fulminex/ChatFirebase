@@ -100,23 +100,32 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         let image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
         image.resizeImageWith(newSize: CGSize(width: 628, height: 1200))
-        let data = image.jpegData(compressionQuality: 0.9)!
+        let data = image.jpegData(compressionQuality: 0.2)!
         
-        let messageImage = Storage.storage().reference().child("channels/\(self.channelUID!)/\(UUID().uuidString).jpg")
+        let messageImagePath = "channels/\(self.channelUID!)/\(UUID().uuidString).jpg"
+        
+        let messageImage = Storage.storage().reference().child(messageImagePath)
         _ = messageImage.putData(data, metadata: nil) { (metadata, error) in
             guard error == nil else {
-                print("Error al subir la imagen")
+                print("Error uploading image")
                 return
             }
-            guard let metadata = metadata else {
-                print("No hay metadata")
-                return
+            messageImage.downloadURL { url, error in
+                if error != nil {
+                    print("Error downloading image url")
+                } else {
+                    print(url!)
+                    self.channelRef.childByAutoId().setValue(
+                        [
+                            "text"          : url?.absoluteString,
+                            "senderUID"     : Auth.auth().currentUser!.uid,
+                            "timeInterval"  : Date().timeIntervalSince1970,
+                            "type"          : "image"
+                        ]
+                    )
+                }
             }
-            
         }
-        
-        print(image.size)
-        print("tubi")
         dismiss(animated:true, completion: nil)
     }
     
@@ -160,7 +169,9 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        channelRef.removeObserver(withHandle: channelRefHandle)
+        if self.isMovingFromParent {
+            channelRef.removeObserver(withHandle: channelRefHandle)
+        }
     }
     
     func observeMessages() {
@@ -249,7 +260,6 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
         
         let message = messages[indexPath.item]
         
-        cell.messageTextView.text = message.text
         cell.profileImageView.kf.indicatorType = .activity
         cell.profileImageView.kf.setImage(with: URL(string: message.sender.profileImageRaw))
         cell.backgroundColor = .white
@@ -258,27 +268,56 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
         let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
         let estimatedFrame = NSString(string: message.text).boundingRect(with: size, options: options, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18)], context: nil)
         
-        if message.sender.uid != Auth.auth().currentUser!.uid {
-            cell.messageTextView.frame = CGRect(x: 48 + 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
-            
-            cell.textBubbleView.frame = CGRect(x: 48 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 16, height: estimatedFrame.height + 20 + 6)
-            
-            cell.profileImageView.isHidden = false
-            
-            cell.bubbleImageView.image = ChatLogMessageCell.grayBubbleImage
-            cell.bubbleImageView.tintColor = UIColor(white: 0.95, alpha: 1)
-            cell.messageTextView.textColor = UIColor.black
+        if
+            message.sender.uid != Auth.auth().currentUser!.uid {
+            if message.type == "text" {
+                cell.messageTextView.text = message.text
+                cell.messageTextView.frame = CGRect(x: 48 + 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
+                
+                cell.textBubbleView.frame = CGRect(x: 48 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 16, height: estimatedFrame.height + 20 + 6)
+                
+                cell.profileImageView.isHidden = false
+                
+                cell.bubbleImageView.image = ChatLogMessageCell.grayBubbleImage
+                cell.bubbleImageView.tintColor = UIColor(white: 0.95, alpha: 1)
+                cell.messageTextView.textColor = UIColor.black
+            } else {
+                cell.messageTextView.text = ""
+                cell.messageTextView.frame = CGRect(x: 48 + 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
+                
+                cell.textBubbleView.frame = CGRect(x: 48 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 16, height: estimatedFrame.height + 20 + 6)
+                
+                cell.profileImageView.isHidden = false
+                
+                cell.bubbleImageView.kf.setImage(with: URL(string: message.text))
+                cell.bubbleImageView.tintColor = UIColor(white: 0.95, alpha: 1)
+                cell.messageTextView.textColor = UIColor.black
+            }
             
         } else {
-            cell.messageTextView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 16 - 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
-            
-            cell.textBubbleView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 8 - 16 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 10, height: estimatedFrame.height + 20 + 6)
-            
-            cell.profileImageView.isHidden = true
-            
-            cell.bubbleImageView.image = ChatLogMessageCell.blueBubbleImage
-            cell.bubbleImageView.tintColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
-            cell.messageTextView.textColor = UIColor.white
+            if message.type == "text" {
+                cell.messageTextView.text = message.text
+                cell.messageTextView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 16 - 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
+                
+                cell.textBubbleView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 8 - 16 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 10, height: estimatedFrame.height + 20 + 6)
+                
+                cell.profileImageView.isHidden = true
+                
+                cell.bubbleImageView.image = ChatLogMessageCell.blueBubbleImage
+                cell.bubbleImageView.tintColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
+                cell.messageTextView.textColor = UIColor.white
+            } else {
+                cell.messageTextView.text = ""
+                cell.messageTextView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 16 - 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
+                
+                cell.textBubbleView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 8 - 16 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 10, height: estimatedFrame.height + 20 + 6)
+                
+                cell.profileImageView.isHidden = true
+                
+                cell.bubbleImageView.kf.setImage(with: URL(string: message.text))
+                cell.bubbleImageView.tintColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
+                cell.messageTextView.textColor = UIColor.white
+            }
         }
         return cell
     }
