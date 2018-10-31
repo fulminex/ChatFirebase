@@ -89,20 +89,22 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
             }
             self.usersRef.observeSingleEvent(of: .value, with: { (snapshot) in
                 guard let users = snapshot.value as? [String : AnyObject] else { return }
+                var isUserExists = false
                 users.forEach({ (key, value) in
                     guard let user = value as? [String : AnyObject] else { return }
                     guard email == user["correo"] as! String else { return }
+                    isUserExists = true
                     let newChannelId = UUID().uuidString
                     self.ref.child("channels/\(newChannelId)").setValue("")
                     self.ref.child("users/\(Auth.auth().currentUser!.uid)/channelList/\(newChannelId)").setValue(key)
                     self.ref.child("users/\(key)/channelList/\(newChannelId)").setValue(Auth.auth().currentUser!.uid)
                 })
+                if !isUserExists {
+                    let alert = UIAlertController(title: "Aviso", message: "Usuario no encontrado", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                    self.present(alert, animated: true)
+                }
             })
-            if false {
-                let alert = UIAlertController(title: "Aviso", message: "No se encontró un usuario con el correo indicado", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-                self.present(alert, animated: true)
-            }
         }))
         self.present(alert, animated: true, completion: nil)
         
