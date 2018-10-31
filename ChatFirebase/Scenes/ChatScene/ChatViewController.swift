@@ -8,13 +8,17 @@
 
 import UIKit
 import Firebase
+import Kingfisher
 
 class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
     
     var channelUID: String!
+    var friendName: String!
     
     var ref: DatabaseReference!
+    var usersRef: DatabaseReference!
     var channelRef: DatabaseReference!
+    var channelRefHandle: DatabaseHandle!
     
     private let cellId = "cellId"
     
@@ -50,39 +54,19 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
     }()
     
     @objc func handleSend() {
-//        guard !(inputTextField.text?.isEmpty ?? false) else { return }
-//        let message = Message(text:inputTextField.text!, sender: User(name:"Angel Herrera", profileImage: UIImage(named: "UserIcon")!), isSender: false)
-//        messages.append(message)
-//
-//        let item = messages.count - 1
-//        let insertionIndexPath = IndexPath(item: item, section: 0)
-//
-//        collectionView?.insertItems(at: [insertionIndexPath])
-//        collectionView?.scrollToItem(at: insertionIndexPath, at: .bottom, animated: true)
-//        inputTextField.text = nil
+        guard !(inputTextField.text?.isEmpty ?? false) else { return }
+        self.channelRef.childByAutoId().setValue(
+            [
+                "text"          : inputTextField.text!,
+                "senderUID"     : Auth.auth().currentUser!.uid,
+                "timeInterval"  : Date().timeIntervalSince1970,
+                "type"          : "text"
+            ]
+        )
+        inputTextField.text = nil
     }
     
     var bottomConstraint: NSLayoutConstraint?
-    
-    @objc func simulate() {
-//        let message = Message(text:"Mensaje recibido", sender: User(name:"Angel Herrera", profileImage: UIImage(named: "UserIcon")!), isSender: true)
-//        messages.append(message)
-//
-//        let item = messages.count - 1
-//        let insertionIndexPath = IndexPath(item: item, section: 0)
-//
-//        collectionView?.insertItems(at: [insertionIndexPath])
-//        collectionView?.scrollToItem(at: insertionIndexPath, at: .bottom, animated: true)
-        
-        // TODO: Implentar el ordenado por fecha de envio
-//      messages = messages?.sort({$0.date!.compare($1.date!) == .OrderedAscending})
-        
-        // TODO: Cambiar la insersión por id en vez del nombre de usuario
-//        if let item = messages.firstIndex(where: { $0.user.name == message.user.name }) {
-//            let receivingIndexPath = IndexPath(item: item, section: 0)
-//            collectionView?.insertItems(at: [receivingIndexPath])
-//        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -91,9 +75,7 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
             self.navigationController?.navigationBar.prefersLargeTitles = false
         }
         
-        self.title = "Nombre del usuario 1, Nombre del usuario 2, etc."
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Simulate", style: .plain, target: self, action: #selector(simulate))
+        self.title = self.friendName
         
         tabBarController?.tabBar.isHidden = true
         
@@ -117,26 +99,52 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardNotification), name: UIResponder.keyboardWillHideNotification, object: nil)
         
         ref = Database.database().reference()
-        channelRef = ref.child("channels")
+        usersRef = ref.child("users")
+        channelRef = ref.child("channels").child(channelUID)
         
-//        let message = Message(text:"Primer Mensaje", sender: User(name:"Anton", profileImage: UIImage(named: "UserIcon")!), isSender: true)
-//        print(message.sender.name)
-//        print(message.isSender)
-//        self.messages.append(message)
-//        let message2 = Message(text:"Segundo Mensaje", sender: User(name:"Anton", profileImage: UIImage(named: "UserIcon")!), isSender: true)
-//        self.messages.append(message2)
-//        print(self.messages.count)
-//        collectionView.reloadData()
+        observeMessages()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        channelRef.removeObserver(withHandle: channelRefHandle)
     }
     
     func observeMessages() {
-        
+        channelRefHandle = channelRef.observe(.childAdded) { (snapshot) in
+            let channelUID = snapshot.key
+            guard let message = snapshot.value as? [String : AnyObject] else { return }
+            self.usersRef.child(message["senderUID"] as! String).observeSingleEvent(of: .value, with: { (snap) in
+                guard let user = snap.value as? [String : AnyObject] else { return }
+                let message = Message(
+                    uid: channelUID,
+                    text: message["text"] as! String,
+                    sender: User(
+                        uid: message["senderUID"] as! String,
+                        email: user["correo"] as! String,
+                        name: user["nombre"] as! String,
+                        gender: user["genero"] as! String,
+                        profileImageRaw: user["profileImageURL"] as! String
+                    ),
+                    timeInterval: message["timeInterval"] as! Double,
+                    type: message["type"] as! String
+                )
+                self.messages.append(message)
+                self.messages = self.messages.sorted(by: { (m1, m2) -> Bool in
+                    let date1 = Date(timeIntervalSince1970: m1.timeInterval)
+                    let date2 = Date(timeIntervalSince1970: m2.timeInterval)
+                    return date1.compare(date2) == .orderedAscending
+                })
+                if let item = self.messages.firstIndex(where: { $0.uid == message.uid }) {
+                    let receivingIndexPath = IndexPath(item: item, section: 0)
+                    self.collectionView?.insertItems(at: [receivingIndexPath])
+                    self.collectionView.scrollToItem(at: IndexPath(item: self.messages.count - 1, section: 0), at: .bottom, animated: true)
+                }
+            })
+        }
     }
     
     @objc func handleKeyboardNotification(notification: NSNotification) {
-        
         if let userInfo = notification.userInfo {
-            
             let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as AnyObject).cgRectValue
             print(keyboardFrame ?? "No se pudo obtener le Rect del Keyboard")
             
@@ -145,17 +153,12 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
             bottomConstraint?.constant = isKeyboardShowing ? -keyboardFrame!.height : 0
             
             UIView.animate(withDuration: 0, delay: 0, options: UIView.AnimationOptions.curveEaseOut, animations: {
-                
                 self.view.layoutIfNeeded()
-                
             }, completion: { (completed) in
-                
                 if isKeyboardShowing {
-                    print(self.messages.count - 1)
                     let indexPath = IndexPath(item: self.messages.count - 1, section: 0)
                     self.collectionView?.scrollToItem(at: indexPath, at: .bottom, animated: true)
                 }
-                
             })
         }
     }
@@ -190,44 +193,38 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! ChatLogMessageCell
         
-        cell.messageTextView.text = messages[indexPath.item].text
-//        cell.profileImageView.image = messages[indexPath.item].sender.profileImage
+        let message = messages[indexPath.item]
+        
+        cell.messageTextView.text = message.text
+        cell.profileImageView.kf.indicatorType = .activity
+        cell.profileImageView.kf.setImage(with: URL(string: message.sender.profileImageRaw))
         cell.backgroundColor = .white
         
-        let message = messages[indexPath.item]
-        if true {
-            let messageText = message.text
-//            let profileImage = message.sender.profileImage
+        let size = CGSize(width: 250, height: 1000)
+        let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
+        let estimatedFrame = NSString(string: message.text).boundingRect(with: size, options: options, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18)], context: nil)
+        
+        if message.sender.uid != Auth.auth().currentUser!.uid {
+            cell.messageTextView.frame = CGRect(x: 48 + 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
             
-            let size = CGSize(width: 250, height: 1000)
-            let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
-            let estimatedFrame = NSString(string: messageText).boundingRect(with: size, options: options, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18)], context: nil)
+            cell.textBubbleView.frame = CGRect(x: 48 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 16, height: estimatedFrame.height + 20 + 6)
             
-            //TODO: Validar con el usuario logueado
-//            if message.isSender {
-//                cell.messageTextView.frame = CGRect(x: 48 + 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
-//                
-//                cell.textBubbleView.frame = CGRect(x: 48 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 16, height: estimatedFrame.height + 20 + 6)
-//                
-//                cell.profileImageView.isHidden = false
-//                
-//                //                cell.textBubbleView.backgroundColor = UIColor(white: 0.95, alpha: 1)
-//                cell.bubbleImageView.image = ChatLogMessageCell.grayBubbleImage
-//                cell.bubbleImageView.tintColor = UIColor(white: 0.95, alpha: 1)
-//                cell.messageTextView.textColor = UIColor.black
-//                
-//            } else {
-//                cell.messageTextView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 16 - 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
-//                
-//                cell.textBubbleView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 8 - 16 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 10, height: estimatedFrame.height + 20 + 6)
-//                
-//                cell.profileImageView.isHidden = true
-//                
-//                //                cell.textBubbleView.backgroundColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
-//                cell.bubbleImageView.image = ChatLogMessageCell.blueBubbleImage
-//                cell.bubbleImageView.tintColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
-//                cell.messageTextView.textColor = UIColor.white
-//            }
+            cell.profileImageView.isHidden = false
+            
+            cell.bubbleImageView.image = ChatLogMessageCell.grayBubbleImage
+            cell.bubbleImageView.tintColor = UIColor(white: 0.95, alpha: 1)
+            cell.messageTextView.textColor = UIColor.black
+            
+        } else {
+            cell.messageTextView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 16 - 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
+            
+            cell.textBubbleView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 8 - 16 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 10, height: estimatedFrame.height + 20 + 6)
+            
+            cell.profileImageView.isHidden = true
+            
+            cell.bubbleImageView.image = ChatLogMessageCell.blueBubbleImage
+            cell.bubbleImageView.tintColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
+            cell.messageTextView.textColor = UIColor.white
         }
         return cell
     }
@@ -264,7 +261,6 @@ class ChatLogMessageCell: BaseCell {
     
     let textBubbleView: UIView = {
         let view = UIView()
-//        view.backgroundColor = UIColor(white: 0.95, alpha: 1)
         view.layer.cornerRadius = 15
         view.layer.masksToBounds = true
         return view

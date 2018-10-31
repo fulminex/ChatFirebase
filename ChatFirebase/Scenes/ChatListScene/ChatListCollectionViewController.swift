@@ -14,6 +14,8 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     
     var ref: DatabaseReference!
     var usersRef: DatabaseReference!
+    var channelListRef: DatabaseReference!
+    var channelListRefHandle: DatabaseHandle!
     
     var displayedChannels: [DisplayedChannel] = []
     
@@ -24,6 +26,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         
         ref = Database.database().reference()
         usersRef = ref.child("users")
+        channelListRef = usersRef.child(Auth.auth().currentUser!.uid).child("channelList")
         
         collectionView?.dataSource = self
         collectionView?.delegate = self
@@ -61,6 +64,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
             print ("Error signing out: %@", signOutError)
             return
         }
+        channelListRef.removeObserver(withHandle: channelListRefHandle)
         self.dismiss(animated: true, completion: nil)
     }
     
@@ -105,8 +109,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     }
     
     func observeChannelsChanges() {
-        self.ref.child("users").child(Auth.auth().currentUser!.uid).child("channelList").observe(.childAdded) { (snapshot) in
-            print(snapshot.key)
+        channelListRefHandle = channelListRef.observe(.childAdded) { (snapshot) in
             self.fetchChannels()
         }
     }
@@ -143,14 +146,19 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath as IndexPath) as! FriendCell
-        cell.nameLabel.text = self.displayedChannels[indexPath.row].user.email
-        cell.profileImageView.kf.setImage(with: URL(string: self.displayedChannels[indexPath.row].user.profileImageRaw))
+        let friend = self.displayedChannels[indexPath.row].user
+        cell.nameLabel.text = friend.name
+        //TODO: Cambiar el email por el último mensaje
+        cell.messageLabel.text = friend.email
+        cell.profileImageView.kf.setImage(with: URL(string: friend.profileImageRaw))
         return cell
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let ChatVC = ChatController(collectionViewLayout: UICollectionViewFlowLayout())
-        ChatVC.channelUID = displayedChannels[indexPath.row].uid
+        let channel = displayedChannels[indexPath.row]
+        ChatVC.channelUID = channel.uid
+        ChatVC.friendName = channel.user.name
         self.navigationController?.pushViewController(ChatVC, animated: true)
     }
     

@@ -13,6 +13,7 @@ struct Message {
     let text: String
     let sender: User
     let timeInterval: Double
+    let type: String
 }
 
 struct User {
