@@ -8,7 +8,7 @@
 
 import UIKit
 
-class CreateUserTableViewController: UITableViewController {
+class CreateUserTableViewController: UITableViewController , UIImagePickerControllerDelegate , UINavigationControllerDelegate {
     
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var nameTextField: UITextField!
