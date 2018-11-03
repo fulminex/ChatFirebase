@@ -268,9 +268,9 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
         let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
         let estimatedFrame = NSString(string: message.text).boundingRect(with: size, options: options, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18)], context: nil)
         
-        if
-            message.sender.uid != Auth.auth().currentUser!.uid {
-            if message.type == "text" {
+        switch message.type {
+        case "text":
+            if message.sender.uid != Auth.auth().currentUser!.uid {
                 cell.messageTextView.text = message.text
                 cell.messageTextView.frame = CGRect(x: 48 + 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
                 
@@ -282,20 +282,6 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
                 cell.bubbleImageView.tintColor = UIColor(white: 0.95, alpha: 1)
                 cell.messageTextView.textColor = UIColor.black
             } else {
-                cell.messageTextView.text = ""
-                cell.messageTextView.frame = CGRect(x: 48 + 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
-                
-                cell.textBubbleView.frame = CGRect(x: 48 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 16, height: estimatedFrame.height + 20 + 6)
-                
-                cell.profileImageView.isHidden = false
-                
-                cell.bubbleImageView.kf.setImage(with: URL(string: message.text))
-                cell.bubbleImageView.tintColor = UIColor(white: 0.95, alpha: 1)
-                cell.messageTextView.textColor = UIColor.black
-            }
-            
-        } else {
-            if message.type == "text" {
                 cell.messageTextView.text = message.text
                 cell.messageTextView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 16 - 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
                 
@@ -306,6 +292,19 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
                 cell.bubbleImageView.image = ChatLogMessageCell.blueBubbleImage
                 cell.bubbleImageView.tintColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
                 cell.messageTextView.textColor = UIColor.white
+            }
+        case "image":
+            if message.sender.uid != Auth.auth().currentUser!.uid {
+                cell.messageTextView.text = ""
+                cell.messageTextView.frame = CGRect(x: 48 + 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
+                
+                cell.textBubbleView.frame = CGRect(x: 48 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 16, height: estimatedFrame.height + 20 + 6)
+                
+                cell.profileImageView.isHidden = false
+                
+                cell.bubbleImageView.kf.setImage(with: URL(string: message.text))
+                cell.bubbleImageView.tintColor = UIColor(white: 0.95, alpha: 1)
+                cell.messageTextView.textColor = UIColor.black
             } else {
                 cell.messageTextView.text = ""
                 cell.messageTextView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 16 - 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
@@ -318,6 +317,8 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
                 cell.bubbleImageView.tintColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
                 cell.messageTextView.textColor = UIColor.white
             }
+        default:
+            print("Error creating cell")
         }
         return cell
     }
