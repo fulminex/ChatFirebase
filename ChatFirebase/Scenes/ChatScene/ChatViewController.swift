@@ -97,8 +97,43 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
         }
     }
     
+    func cropToBounds(image: UIImage, width: Double, height: Double) -> UIImage {
+        
+        let cgimage = image.cgImage!
+        let contextImage: UIImage = UIImage(cgImage: cgimage)
+        let contextSize: CGSize = contextImage.size
+        var posX: CGFloat = 0.0
+        var posY: CGFloat = 0.0
+        var cgwidth: CGFloat = CGFloat(width)
+        var cgheight: CGFloat = CGFloat(height)
+        
+        // See what size is longer and create the center off of that
+        if contextSize.width > contextSize.height {
+            posX = ((contextSize.width - contextSize.height) / 2)
+            posY = 0
+            cgwidth = contextSize.height
+            cgheight = contextSize.height
+        } else {
+            posX = 0
+            posY = ((contextSize.height - contextSize.width) / 2)
+            cgwidth = contextSize.width
+            cgheight = contextSize.width
+        }
+        
+        let rect: CGRect = CGRect(x: posX, y: posY, width: cgwidth, height: cgheight)
+        
+        // Create bitmap image from context using the rect
+        let imageRef: CGImage = cgimage.cropping(to: rect)!
+        
+        // Create a new image based on the imageRef and rotate back to the original orientation
+        let image: UIImage = UIImage(cgImage: imageRef, scale: image.scale, orientation: image.imageOrientation)
+        
+        return image
+    }
+    
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        let image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
+        var image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
+        image = cropToBounds(image: image, width: 630, height: 840)
         image.resizeImageWith(newSize: CGSize(width: 630, height: 840))
         let data = image.jpegData(compressionQuality: 0.2)!
         
@@ -296,7 +331,7 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
         case "image":
             if message.sender.uid != Auth.auth().currentUser!.uid {
                 cell.messageTextView.text = ""
-                cell.textBubbleView.frame = CGRect(x: 48, y: -4, width: 210, height: 280)
+                cell.textBubbleView.frame = CGRect(x: 48, y: -4, width: 220, height: 280)
                 
                 cell.profileImageView.isHidden = false
                 
@@ -305,7 +340,7 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
                 cell.messageTextView.textColor = UIColor.black
             } else {
                 cell.messageTextView.text = ""
-                cell.textBubbleView.frame = CGRect(x: view.frame.width - 230, y: -4, width: 210, height: 280)
+                cell.textBubbleView.frame = CGRect(x: view.frame.width - 230, y: -4, width: 220, height: 280)
                 
                 cell.profileImageView.isHidden = true
                 
