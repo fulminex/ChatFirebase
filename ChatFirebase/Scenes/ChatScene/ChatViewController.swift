@@ -296,9 +296,7 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
         case "image":
             if message.sender.uid != Auth.auth().currentUser!.uid {
                 cell.messageTextView.text = ""
-                cell.messageTextView.frame = CGRect(x: 48 + 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
-                
-                cell.textBubbleView.frame = CGRect(x: 48 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 16, height: estimatedFrame.height + 20 + 6)
+                cell.textBubbleView.frame = CGRect(x: 48, y: -4, width: 210, height: 280)
                 
                 cell.profileImageView.isHidden = false
                 
@@ -307,9 +305,7 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
                 cell.messageTextView.textColor = UIColor.black
             } else {
                 cell.messageTextView.text = ""
-                cell.messageTextView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 16 - 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
-                
-                cell.textBubbleView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 8 - 16 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 10, height: estimatedFrame.height + 20 + 6)
+                cell.textBubbleView.frame = CGRect(x: view.frame.width - 230, y: -4, width: 210, height: 280)
                 
                 cell.profileImageView.isHidden = true
                 
