@@ -99,7 +99,7 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         let image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
-        image.resizeImageWith(newSize: CGSize(width: 628, height: 1200))
+        image.resizeImageWith(newSize: CGSize(width: 630, height: 840))
         let data = image.jpegData(compressionQuality: 0.2)!
         
         let messageImagePath = "channels/\(self.channelUID!)/\(UUID().uuidString).jpg"
