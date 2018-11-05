@@ -17,7 +17,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     var channelListRef: DatabaseReference!
     var channelListRefHandle: DatabaseHandle!
     
-    var displayedChannels: [DisplayedChannel] = []
+    var displayedChannels: [Channel] = []
     
     var spinner: UIView!
     
@@ -121,14 +121,14 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         }
     }
     
-    @objc func fetchChannels() {
+    func fetchChannels() {
         self.usersRef.child(Auth.auth().currentUser!.uid).observeSingleEvent(of: .value, with: { (snapshot) in
             guard let currentUser = snapshot.value as? [String : AnyObject] else { return }
             guard let channelsList = currentUser["channelList"] as? [String : AnyObject] else { return }
             channelsList.forEach({ (key, value) in
                 self.usersRef.child("\(value)").observeSingleEvent(of: .value, with: { (snap) in
                     guard let user = snap.value as? [String : AnyObject] else { return }
-                    let displayedChannel = DisplayedChannel(
+                    let displayedChannel = Channel(
                         uid: key,
                         user: User(
                             uid: value as! String,
@@ -159,6 +159,9 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         //TODO: Cambiar el email por el último mensaje
         cell.messageLabel.text = friend.email
         cell.profileImageView.kf.indicatorType = .activity
+        cell.profileImageView.kf.setImage(with: URL(string: friend.profileImageRaw)) { (image, error, cacheType, URL) in
+            print(image?.size.width)
+        }
         cell.profileImageView.kf.setImage(with: URL(string: friend.profileImageRaw))
         return cell
     }

@@ -26,10 +26,5 @@ struct User {
 
 struct Channel {
     let uid: String
-    let messages: [Message]
-}
-
-struct DisplayedChannel {
-    let uid: String
     let user: User
 }
