@@ -60,15 +60,6 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         
         collectionView?.insertItems(at: [insertionIndexPath])
         collectionView?.scrollToItem(at: insertionIndexPath, at: .bottom, animated: true)
-        
-        // TODO: Implentar el ordenado por fecha de envio
-//      messages = messages?.sort({$0.date!.compare($1.date!) == .OrderedAscending})
-        
-        // TODO: Cambiar la insersión por id en vez del nombre de usuario
-//        if let item = messages.firstIndex(where: { $0.user.name == message.user.name }) {
-//            let receivingIndexPath = IndexPath(item: item, section: 0)
-//            collectionView?.insertItems(at: [receivingIndexPath])
-//        }
     }
     
     override func viewDidLoad() {
