@@ -97,45 +97,12 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
         }
     }
     
-    func cropToBounds(image: UIImage, width: Double, height: Double) -> UIImage {
-        
-        let cgimage = image.cgImage!
-        let contextImage: UIImage = UIImage(cgImage: cgimage)
-        let contextSize: CGSize = contextImage.size
-        var posX: CGFloat = 0.0
-        var posY: CGFloat = 0.0
-        var cgwidth: CGFloat = CGFloat(width)
-        var cgheight: CGFloat = CGFloat(height)
-        
-        // See what size is longer and create the center off of that
-        if contextSize.width > contextSize.height {
-            posX = ((contextSize.width - contextSize.height) / 2)
-            posY = 0
-            cgwidth = contextSize.height
-            cgheight = contextSize.height
-        } else {
-            posX = 0
-            posY = ((contextSize.height - contextSize.width) / 2)
-            cgwidth = contextSize.width
-            cgheight = contextSize.width
-        }
-        
-        let rect: CGRect = CGRect(x: posX, y: posY, width: cgwidth, height: cgheight)
-        
-        // Create bitmap image from context using the rect
-        let imageRef: CGImage = cgimage.cropping(to: rect)!
-        
-        // Create a new image based on the imageRef and rotate back to the original orientation
-        let image: UIImage = UIImage(cgImage: imageRef, scale: image.scale, orientation: image.imageOrientation)
-        
-        return image
-    }
-    
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        var image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
-        image = cropToBounds(image: image, width: 630, height: 840)
-        image.resizeImageWith(newSize: CGSize(width: 630, height: 840))
-        let data = image.jpegData(compressionQuality: 0.2)!
+        let image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
+        let newImage = image.resizeImageWith(newSize: CGSize(width: 200, height: 200))
+        print("Ancho de la nueva imagen: ", newImage.size.width)
+        print("Alto de la nueva imagen: ", newImage.size.height)
+        let data = newImage.jpegData(compressionQuality: 0.9)!
         
         let messageImagePath = "channels/\(self.channelUID!)/\(UUID().uuidString).jpg"
         
@@ -215,6 +182,28 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
             guard let message = snapshot.value as? [String : AnyObject] else { return }
             self.usersRef.child(message["senderUID"] as! String).observeSingleEvent(of: .value, with: { (snap) in
                 guard let user = snap.value as? [String : AnyObject] else { return }
+                
+                var imageWidth: Double?
+                var imageHeight: Double?
+                
+                let url = URL(string: message["text"] as! String)
+                let type = MessageType(rawValue: message["type"] as! String)!
+                
+                switch type {
+                case .image:
+                    if let imageSource = CGImageSourceCreateWithURL(url! as CFURL, nil) {
+                        if let imageProperties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as Dictionary? {
+                            let pixelImageWidth = imageProperties[kCGImagePropertyPixelWidth] as? Double
+                            let pixelImageHeight = imageProperties[kCGImagePropertyPixelHeight] as? Double
+                            imageWidth = pixelImageWidth! / 3.0
+                            imageHeight = pixelImageHeight! / 3.0
+                        }
+                    }
+                case .text:
+                    imageWidth = nil
+                    imageHeight = nil
+                }
+                
                 let message = Message(
                     uid: channelUID,
                     text: message["text"] as! String,
@@ -226,7 +215,9 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
                         profileImageRaw: user["profileImageURL"] as! String
                     ),
                     timeInterval: message["timeInterval"] as! Double,
-                    type: message["type"] as! String
+                    type: type,
+                    imageWidth: imageWidth,
+                    imageHeight: imageHeight
                 )
                 self.messages.append(message)
                 self.messages = self.messages.sorted(by: { (m1, m2) -> Bool in
@@ -304,7 +295,7 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
         let estimatedFrame = NSString(string: message.text).boundingRect(with: size, options: options, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18)], context: nil)
         
         switch message.type {
-        case "text":
+        case .text:
             if message.sender.uid != Auth.auth().currentUser!.uid {
                 cell.messageTextView.text = message.text
                 cell.messageTextView.frame = CGRect(x: 48 + 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
@@ -328,43 +319,46 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
                 cell.bubbleImageView.tintColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
                 cell.messageTextView.textColor = UIColor.white
             }
-        case "image":
+        case .image:
             if message.sender.uid != Auth.auth().currentUser!.uid {
                 cell.messageTextView.text = ""
-                cell.textBubbleView.frame = CGRect(x: 48, y: -4, width: 220, height: 280)
+                cell.textBubbleView.frame = CGRect(x: 48, y: -4, width: message.imageWidth!, height: message.imageHeight!)
                 
                 cell.profileImageView.isHidden = false
-                
+                cell.bubbleImageView.kf.indicatorType = .activity
                 cell.bubbleImageView.kf.setImage(with: URL(string: message.text))
                 cell.bubbleImageView.tintColor = UIColor(white: 0.95, alpha: 1)
                 cell.messageTextView.textColor = UIColor.black
             } else {
                 cell.messageTextView.text = ""
-                cell.textBubbleView.frame = CGRect(x: view.frame.width - 230, y: -4, width: 220, height: 280)
-                
                 cell.profileImageView.isHidden = true
-                
+                cell.bubbleImageView.kf.indicatorType = .activity
                 cell.bubbleImageView.kf.setImage(with: URL(string: message.text))
+                
+                cell.textBubbleView.frame = CGRect(x: Double(self.view.frame.width) - message.imageWidth! - 20, y: -4, width: message.imageWidth!, height: message.imageHeight!)
                 cell.bubbleImageView.tintColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
                 cell.messageTextView.textColor = UIColor.white
             }
-        default:
-            print("Error creating cell")
         }
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let messageText = messages[indexPath.item].text
-        if true {
+        let message = messages[indexPath.item]
+        let messageText = message.text
+        
+        switch message.type {
+        case .text:
             let size = CGSize(width: 250, height: 1000)
             let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
             let estimatedFrame = NSString(string: messageText).boundingRect(with: size, options: options, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18)], context: nil)
             
             return CGSize(width: view.frame.width, height: estimatedFrame.height + 20)
+        case .image:
+            let screenWidth = Double(view.frame.width)
+            let height = message.imageHeight ?? 200
+            return CGSize(width: screenWidth, height: height)
         }
-        
-        return CGSize(width: view.frame.width, height: 100)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
