@@ -99,7 +99,7 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         let image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
-        let newImage = image.resizeImageWith(newSize: CGSize(width: 200, height: 200))
+        let newImage = image.resizeImageWith(newSize: CGSize(width: 250, height: 250))
         print("Ancho de la nueva imagen: ", newImage.size.width)
         print("Alto de la nueva imagen: ", newImage.size.height)
         let data = newImage.jpegData(compressionQuality: 0.9)!
