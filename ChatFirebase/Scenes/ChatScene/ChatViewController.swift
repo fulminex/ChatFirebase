@@ -74,6 +74,8 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         
         collectionView?.backgroundColor = UIColor.white
         
+        self.navigationController?.navigationBar.tintColor = UIColor(red: 225/255, green: 118/255, blue: 57/255, alpha: 1)
+        
         collectionView?.register(ChatLogMessageCell.self, forCellWithReuseIdentifier: cellId)
         
         view.addSubview(messageInputContainerView)
@@ -213,7 +215,7 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
             cell.profileImageView.isHidden = true
             
             cell.bubbleImageView.image = ChatLogMessageCell.blueBubbleImage
-            cell.bubbleImageView.tintColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
+            cell.bubbleImageView.tintColor = UIColor(red: 225/255, green: 118/255, blue: 57/255, alpha: 1)
             cell.messageTextView.textColor = UIColor.white
         }
         return cell

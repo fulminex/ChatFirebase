@@ -30,7 +30,7 @@
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PLc-yN-49E">
                                 <rect key="frame" x="15" y="612" width="345" height="40"/>
-                                <color key="backgroundColor" white="0.0" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="Deb-KF-p0q"/>
                                 </constraints>
@@ -83,8 +83,9 @@
         </scene>
     </scenes>
     <resources>
-        <image name="Fondo" width="606" height="1129"/>
-        <image name="ITLabLogo" width="254" height="200"/>
+        <image name="Fondo" width="1242" height="2208"/>
+        <image name="ITLabLogo" width="640.32000732421875" height="480"/>
         <image name="fondo" width="606" height="1129"/>
     </resources>
+    <color key="tintColor" red="0.88695359230000004" green="0.4648614526" blue="0.22370600700000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
 </document>

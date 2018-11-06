@@ -19,6 +19,7 @@ class LoginTableViewController: UITableViewController {
         self.title = "Ingresar"
         let cancelBarButtonItem = UIBarButtonItem(image: UIImage(named: "CancelIcon"), style: .plain, target: self, action: #selector(cancelButtonTapped))
         self.navigationItem.rightBarButtonItem = cancelBarButtonItem
+        self.navigationController?.navigationBar.tintColor = UIColor(red: 225/255, green: 118/255, blue: 57/255, alpha: 1)
         self.tableView.allowsSelection = false
     }
     
