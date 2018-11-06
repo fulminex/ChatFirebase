@@ -46,8 +46,8 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         
         collectionView?.register(FriendCell.self, forCellWithReuseIdentifier: cellId)
         
-        let createChatButtonItem = UIBarButtonItem(image: UIImage(named: "PlusIcon"), style: .plain, target: self, action: #selector(createChat))
-        let logoutButtonItem = UIBarButtonItem(image: UIImage(named: "LogoutIcon"), style: .plain, target: self, action: #selector(logout))
+        let createChatButtonItem = UIBarButtonItem(image: UIImage(named: "PlusIcon")?.resizeImageWith(newSize: CGSize(width: 24, height: 24)), style: .plain, target: self, action: #selector(createChat))
+        let logoutButtonItem = UIBarButtonItem(image: UIImage(named: "LogoutIcon")?.resizeImageWith(newSize: CGSize(width: 24, height: 24)), style: .plain, target: self, action: #selector(logout))
         self.navigationItem.rightBarButtonItem = createChatButtonItem
         self.navigationItem.leftBarButtonItem = logoutButtonItem
         
