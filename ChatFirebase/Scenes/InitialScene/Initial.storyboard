@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ZBT-Ox-xeg">
-    <device id="retina4_7" orientation="portrait">
+    <device id="retina5_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -15,73 +15,9 @@
             <objects>
                 <viewController id="ZBT-Ox-xeg" customClass="InitialViewController" customModule="ChatFirebase" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="r5l-8C-5xH">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Fondo" highlightedImage="fondo" translatesAutoresizingMaskIntoConstraints="NO" id="C1l-Bd-3RO">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                            </imageView>
-                            <view alpha="0.15000000596046448" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xLN-YK-CxG" userLabel="WhiteEffect">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            </view>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="UlimaLogo" translatesAutoresizingMaskIntoConstraints="NO" id="I7Z-Oh-Ptr">
-                                <rect key="frame" x="87.5" y="60" width="200" height="200"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="200" id="5Pv-n1-huH"/>
-                                    <constraint firstAttribute="height" constant="200" id="fSo-hM-gxc"/>
-                                </constraints>
-                            </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PLc-yN-49E">
-                                <rect key="frame" x="15" y="612" width="345" height="40"/>
-                                <color key="backgroundColor" white="0.0" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="40" id="Deb-KF-p0q"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="22"/>
-                                <state key="normal" title="Ingresar">
-                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    <color key="titleShadowColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                </state>
-                                <connections>
-                                    <action selector="loginButtonTapped:" destination="ZBT-Ox-xeg" eventType="touchUpInside" id="0zM-ic-mv2"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tac-D6-ksr">
-                                <rect key="frame" x="15" y="562" width="345" height="40"/>
-                                <color key="backgroundColor" red="0.88695359230000004" green="0.4648614526" blue="0.22370600700000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="40" id="Zif-i0-dNs"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="22"/>
-                                <state key="normal" title="Crear Cuenta Nueva">
-                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    <color key="titleShadowColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                </state>
-                                <connections>
-                                    <action selector="newAccountButtonTapped:" destination="ZBT-Ox-xeg" eventType="touchUpInside" id="Sdz-Ek-Kbx"/>
-                                </connections>
-                            </button>
-                        </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        <constraints>
-                            <constraint firstItem="mVt-be-2G9" firstAttribute="trailing" secondItem="C1l-Bd-3RO" secondAttribute="trailing" id="7CB-I2-6rC"/>
-                            <constraint firstItem="mVt-be-2G9" firstAttribute="bottom" secondItem="PLc-yN-49E" secondAttribute="bottom" constant="15" id="9Ad-g6-uNc"/>
-                            <constraint firstItem="PLc-yN-49E" firstAttribute="leading" secondItem="mVt-be-2G9" secondAttribute="leading" constant="15" id="Cnx-Ds-l67"/>
-                            <constraint firstItem="mVt-be-2G9" firstAttribute="trailing" secondItem="tac-D6-ksr" secondAttribute="trailing" constant="15" id="G1A-Bn-xIb"/>
-                            <constraint firstItem="C1l-Bd-3RO" firstAttribute="leading" secondItem="mVt-be-2G9" secondAttribute="leading" id="L1k-Ve-ssc"/>
-                            <constraint firstItem="xLN-YK-CxG" firstAttribute="top" secondItem="r5l-8C-5xH" secondAttribute="top" id="Lur-tA-h70"/>
-                            <constraint firstItem="C1l-Bd-3RO" firstAttribute="top" secondItem="r5l-8C-5xH" secondAttribute="top" id="RhX-6Y-BLR"/>
-                            <constraint firstItem="I7Z-Oh-Ptr" firstAttribute="top" secondItem="mVt-be-2G9" secondAttribute="top" constant="40" id="Vhd-ak-KDa"/>
-                            <constraint firstItem="mVt-be-2G9" firstAttribute="trailing" secondItem="xLN-YK-CxG" secondAttribute="trailing" id="cPE-bP-Ymc"/>
-                            <constraint firstItem="tac-D6-ksr" firstAttribute="leading" secondItem="mVt-be-2G9" secondAttribute="leading" constant="15" id="ckD-yf-O6t"/>
-                            <constraint firstItem="I7Z-Oh-Ptr" firstAttribute="centerX" secondItem="r5l-8C-5xH" secondAttribute="centerX" id="e0f-Zn-KPk"/>
-                            <constraint firstAttribute="bottom" secondItem="xLN-YK-CxG" secondAttribute="bottom" id="kK3-VP-lc7"/>
-                            <constraint firstItem="PLc-yN-49E" firstAttribute="top" secondItem="tac-D6-ksr" secondAttribute="bottom" constant="10" id="pBV-tV-an3"/>
-                            <constraint firstItem="xLN-YK-CxG" firstAttribute="leading" secondItem="mVt-be-2G9" secondAttribute="leading" id="s0p-bH-yiM"/>
-                            <constraint firstAttribute="bottom" secondItem="C1l-Bd-3RO" secondAttribute="bottom" id="s8p-em-l4E"/>
-                            <constraint firstItem="mVt-be-2G9" firstAttribute="trailing" secondItem="PLc-yN-49E" secondAttribute="trailing" constant="15" id="uM3-bu-KKH"/>
-                        </constraints>
                         <viewLayoutGuide key="safeArea" id="mVt-be-2G9"/>
                     </view>
                 </viewController>
@@ -90,9 +26,4 @@
             <point key="canvasLocation" x="133.59999999999999" y="133.5832083958021"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="Fondo" width="606" height="1129"/>
-        <image name="UlimaLogo" width="220" height="219"/>
-        <image name="fondo" width="606" height="1129"/>
-    </resources>
 </document>

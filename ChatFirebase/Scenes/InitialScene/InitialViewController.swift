@@ -20,6 +20,7 @@ class InitialViewController: UIViewController {
         self.present(UINavigationController(rootViewController: ChatListVC), animated: true, completion: nil)
     }
     
+    
     // MARK: - Navigation
 
     @IBAction func newAccountButtonTapped(_ sender: UIButton) {
