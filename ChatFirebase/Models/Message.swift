@@ -18,3 +18,6 @@ struct User {
     let name: String
     let profileImage: UIImage
 }
+
+
+//Añadir enum de MessageType aquí

@@ -36,6 +36,8 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         return button
     }()
     
+    //Añadir cameraButton aquí
+    
     @objc func handleSend() {
         guard !(inputTextField.text?.isEmpty ?? false) else { return }
         let message = Message(text:inputTextField.text!, user: User(name:"Angel Herrera", profileImage: UIImage(named: "UserIcon")!), isSender: false)
@@ -48,6 +50,8 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         collectionView?.scrollToItem(at: insertionIndexPath, at: .bottom, animated: true)
         inputTextField.text = nil
     }
+    
+    //Añadir imagePickerController aquí
     
     var bottomConstraint: NSLayoutConstraint?
     
@@ -144,6 +148,7 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         messageInputContainerView.addSubview(inputTextField)
         messageInputContainerView.addSubview(sendButton)
         messageInputContainerView.addSubview(topBorderView)
+        //Añadir subview del cameraButton aquí
         
         messageInputContainerView.addConstraintsWithFormat(format: "H:|-8-[v0][v1(60)]|", views: inputTextField, sendButton)
         
