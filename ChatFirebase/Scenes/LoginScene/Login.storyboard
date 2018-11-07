@@ -99,7 +99,7 @@
                                             <subviews>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KaQ-gy-gb4">
                                                     <rect key="frame" x="0.0" y="0.0" width="375" height="49.5"/>
-                                                    <color key="backgroundColor" red="0.0" green="0.47908455129999999" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <color key="backgroundColor" red="0.94117647059999998" green="0.43529411759999997" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <state key="normal" title="Ingresar">
                                                         <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <color key="titleShadowColor" red="0.0" green="0.47908455129999999" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -137,7 +137,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="EmailIcon" width="51.200000762939453" height="51.200000762939453"/>
-        <image name="PasswordIcon" width="51.200000762939453" height="51.200000762939453"/>
+        <image name="EmailIcon" width="32" height="32"/>
+        <image name="PasswordIcon" width="32" height="32"/>
     </resources>
 </document>
