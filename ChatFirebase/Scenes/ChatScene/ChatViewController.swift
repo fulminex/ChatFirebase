@@ -106,11 +106,12 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
     
     func observeMessages() {
         channelRefHandle = channelRef.observe(.childAdded) { (snapshot) in
+            let messageUID = snapshot.key
             guard let message = snapshot.value as? [String : AnyObject] else { return }
             self.usersRef.child(message["senderUID"] as! String).observeSingleEvent(of: .value, with: { (snap) in
                 guard let user = snap.value as? [String : AnyObject] else { return }
                 let message = Message(
-                    uid: self.channelUID,
+                    uid: messageUID,
                     text: message["text"] as! String,
                     sender: User(
                         uid: message["senderUID"] as! String,
