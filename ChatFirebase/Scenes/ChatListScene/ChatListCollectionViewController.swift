@@ -27,6 +27,8 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         collectionView?.backgroundColor = UIColor.white
         collectionView?.alwaysBounceVertical = true
         
+        self.navigationController?.navigationBar.tintColor = UIColor(red: 225/255, green: 118/255, blue: 57/255, alpha: 1)
+        
         collectionView?.register(FriendCell.self, forCellWithReuseIdentifier: cellId)
     }
     

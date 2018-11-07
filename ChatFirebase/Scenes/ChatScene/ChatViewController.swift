@@ -71,6 +71,8 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         
         self.title = "Nombre del usuario 1, Nombre del usuario 2, etc."
         
+        self.navigationController?.navigationBar.tintColor = UIColor(red: 225/255, green: 118/255, blue: 57/255, alpha: 1)
+        
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Simulate", style: .plain, target: self, action: #selector(simulate))
         
         tabBarController?.tabBar.isHidden = true
@@ -194,7 +196,7 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
                 
                 //                cell.textBubbleView.backgroundColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
                 cell.bubbleImageView.image = ChatLogMessageCell.blueBubbleImage
-                cell.bubbleImageView.tintColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
+                cell.bubbleImageView.tintColor = UIColor(red: 225/255, green: 118/255, blue: 57/255, alpha: 1)
                 cell.messageTextView.textColor = UIColor.white
             }
         }
