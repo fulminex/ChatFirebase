@@ -17,7 +17,7 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     var channelListRef: DatabaseReference!
     var channelListRefHandle: DatabaseHandle!
     
-    var displayedChannels: [DisplayedChannel] = []
+    var displayedChannels: [Channel] = []
     
     var spinner: UIView!
     
@@ -42,10 +42,12 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         collectionView?.backgroundColor = UIColor.white
         collectionView?.alwaysBounceVertical = true
         
+        self.navigationController?.navigationBar.tintColor = UIColor(red: 225/255, green: 118/255, blue: 57/255, alpha: 1)
+        
         collectionView?.register(FriendCell.self, forCellWithReuseIdentifier: cellId)
         
-        let createChatButtonItem = UIBarButtonItem(image: UIImage(named: "PlusIcon"), style: .plain, target: self, action: #selector(createChat))
-        let logoutButtonItem = UIBarButtonItem(image: UIImage(named: "LogoutIcon"), style: .plain, target: self, action: #selector(logout))
+        let createChatButtonItem = UIBarButtonItem(image: UIImage(named: "PlusIcon")?.resizeImageWith(newSize: CGSize(width: 24, height: 24)), style: .plain, target: self, action: #selector(createChat))
+        let logoutButtonItem = UIBarButtonItem(image: UIImage(named: "LogoutIcon")?.resizeImageWith(newSize: CGSize(width: 24, height: 24)), style: .plain, target: self, action: #selector(logout))
         self.navigationItem.rightBarButtonItem = createChatButtonItem
         self.navigationItem.leftBarButtonItem = logoutButtonItem
         
@@ -121,14 +123,14 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         }
     }
     
-    @objc func fetchChannels() {
+    func fetchChannels() {
         self.usersRef.child(Auth.auth().currentUser!.uid).observeSingleEvent(of: .value, with: { (snapshot) in
             guard let currentUser = snapshot.value as? [String : AnyObject] else { return }
             guard let channelsList = currentUser["channelList"] as? [String : AnyObject] else { return }
             channelsList.forEach({ (key, value) in
                 self.usersRef.child("\(value)").observeSingleEvent(of: .value, with: { (snap) in
                     guard let user = snap.value as? [String : AnyObject] else { return }
-                    let displayedChannel = DisplayedChannel(
+                    let displayedChannel = Channel(
                         uid: key,
                         user: User(
                             uid: value as! String,
@@ -159,6 +161,9 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         //TODO: Cambiar el email por el último mensaje
         cell.messageLabel.text = friend.email
         cell.profileImageView.kf.indicatorType = .activity
+        cell.profileImageView.kf.setImage(with: URL(string: friend.profileImageRaw)) { (image, error, cacheType, URL) in
+            print(image?.size.width)
+        }
         cell.profileImageView.kf.setImage(with: URL(string: friend.profileImageRaw))
         return cell
     }

@@ -146,6 +146,8 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
         
         collectionView?.backgroundColor = UIColor.white
         
+        self.navigationController?.navigationBar.tintColor = UIColor(red: 225/255, green: 118/255, blue: 57/255, alpha: 1)
+        
         collectionView?.register(ChatLogMessageCell.self, forCellWithReuseIdentifier: cellId)
         
         view.addSubview(messageInputContainerView)
@@ -178,7 +180,7 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
     
     func observeMessages() {
         channelRefHandle = channelRef.observe(.childAdded) { (snapshot) in
-            let channelUID = snapshot.key
+            let messageUID = snapshot.key
             guard let message = snapshot.value as? [String : AnyObject] else { return }
             self.usersRef.child(message["senderUID"] as! String).observeSingleEvent(of: .value, with: { (snap) in
                 guard let user = snap.value as? [String : AnyObject] else { return }
@@ -205,7 +207,7 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
                 }
                 
                 let message = Message(
-                    uid: channelUID,
+                    uid: messageUID,
                     text: message["text"] as! String,
                     sender: User(
                         uid: message["senderUID"] as! String,
@@ -316,7 +318,7 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
                 cell.profileImageView.isHidden = true
                 
                 cell.bubbleImageView.image = ChatLogMessageCell.blueBubbleImage
-                cell.bubbleImageView.tintColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
+                cell.bubbleImageView.tintColor = UIColor(red: 225/255, green: 118/255, blue: 57/255, alpha: 1)
                 cell.messageTextView.textColor = UIColor.white
             }
         case .image:
@@ -327,8 +329,6 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
                 cell.profileImageView.isHidden = false
                 cell.bubbleImageView.kf.indicatorType = .activity
                 cell.bubbleImageView.kf.setImage(with: URL(string: message.text))
-                cell.bubbleImageView.tintColor = UIColor(white: 0.95, alpha: 1)
-                cell.messageTextView.textColor = UIColor.black
             } else {
                 cell.messageTextView.text = ""
                 cell.profileImageView.isHidden = true
@@ -336,8 +336,6 @@ class ChatController: UICollectionViewController,UIImagePickerControllerDelegate
                 cell.bubbleImageView.kf.setImage(with: URL(string: message.text))
                 
                 cell.textBubbleView.frame = CGRect(x: Double(self.view.frame.width) - message.imageWidth! - 20, y: -4, width: message.imageWidth!, height: message.imageHeight!)
-                cell.bubbleImageView.tintColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
-                cell.messageTextView.textColor = UIColor.white
             }
         }
         return cell

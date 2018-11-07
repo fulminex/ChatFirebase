@@ -23,6 +23,7 @@ class CreateUserTableViewController: UITableViewController, UIImagePickerControl
         self.title = "Crear Nuevo Usuario"
         let cancelBarButtonItem = UIBarButtonItem(image: UIImage(named: "CancelIcon"), style: .plain, target: self, action: #selector(cancelButtonTapped))
         self.navigationItem.rightBarButtonItem = cancelBarButtonItem
+        self.navigationController?.navigationBar.tintColor = UIColor(red: 225/255, green: 118/255, blue: 57/255, alpha: 1)
         self.profileImageView.layer.cornerRadius = self.profileImageView.frame.size.width / 2
         self.profileImageView.clipsToBounds = true
         self.tableView.allowsSelection = false
