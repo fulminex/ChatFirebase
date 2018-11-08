@@ -32,11 +32,14 @@ class CreateUserTableViewController: UITableViewController , UIImagePickerContro
     }
 
     @IBAction func createNewUserButtonTapped(_ sender: UIButton) {
+        //Insertar Codigo Aqui
         
     }
     
     @IBAction func changeProfileImage(_ sender: UIButton) {
-        
+        //Insertar Codigo Aqui
     }
+    
+    //Insertar Funciones aqui
     
 }
