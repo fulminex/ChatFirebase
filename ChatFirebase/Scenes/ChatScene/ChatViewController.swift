@@ -163,6 +163,8 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         return messages.count
     }
     
+    //Añadir la imagen a la celda
+    
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! ChatLogMessageCell
         
@@ -207,6 +209,8 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         }
         return cell
     }
+    
+    //Ajustar el tamaño de la celda para las imágenes 
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let messageText = messages[indexPath.item].text
