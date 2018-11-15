@@ -7,8 +7,11 @@
 //
 
 import UIKit
+import Firebase
 
 class InitialViewController: UIViewController {
+    
+    var handle: AuthStateDidChangeListenerHandle?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -16,8 +19,16 @@ class InitialViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let ChatListVC = ChatListCollectionViewController(collectionViewLayout: UICollectionViewFlowLayout())
-        self.present(UINavigationController(rootViewController: ChatListVC), animated: true, completion: nil)
+        handle = Auth.auth().addStateDidChangeListener { (auth, user) in
+            guard user != nil else { return }
+            let ChatListVC = ChatListCollectionViewController(collectionViewLayout: UICollectionViewFlowLayout())
+            self.present(UINavigationController(rootViewController: ChatListVC), animated: true, completion: nil)
+        }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        Auth.auth().removeStateDidChangeListener(handle!)
     }
     
     
