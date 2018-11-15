@@ -13,7 +13,9 @@ struct Message {
     let text: String
     let sender: User
     let timeInterval: Double
-    let type: String
+    let type: MessageType
+    let imageWidth: Double?
+    let imageHeight: Double?
 }
 
 struct User {
@@ -28,4 +30,8 @@ struct Channel {
     let uid: String
     let user: User
 }
-//Añadir enum de MessageType aquí
+
+enum MessageType: String {
+    case text = "text"
+    case image = "image"
+}

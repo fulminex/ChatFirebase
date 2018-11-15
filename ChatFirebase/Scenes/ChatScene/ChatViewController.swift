@@ -10,8 +10,8 @@ import UIKit
 import Firebase
 import Kingfisher
 
-class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
-    
+class ChatController: UICollectionViewController,UIImagePickerControllerDelegate, UINavigationControllerDelegate, UICollectionViewDelegateFlowLayout {
+
     var channelUID: String!
     var friendName: String!
     
@@ -46,7 +46,44 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         return button
     }()
     
-    //Añadir cameraButton aquí
+    let cameraButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(named: "CameraIcon"), for: .normal)
+        button.addTarget(self, action: #selector(cameraButtonPressed), for: .touchUpInside)
+        return button
+    }()
+    
+    @objc  func cameraButtonPressed() {
+        let alert = UIAlertController(title: "Aviso", message: "Elige desde donde deseas agregar una foto", preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "Abrir cámara", style: .default, handler: { (action) in
+            self.openCamera()
+        }))
+        alert.addAction(UIAlertAction(title: "Abrir librería de fotos", style: .default, handler: { (action) in
+            self.openPhotoLibrary()
+        }))
+        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel, handler: nil))
+        self.present(alert, animated: true)
+    }
+    
+    @objc func openCamera() {
+        if UIImagePickerController.isSourceTypeAvailable(.camera){
+            let myPickerController = UIImagePickerController()
+            myPickerController.delegate = self
+            myPickerController.sourceType = .camera
+            myPickerController.allowsEditing = false
+            self.present(myPickerController, animated: true, completion: nil)
+        }
+    }
+    
+    func openPhotoLibrary() {
+        if UIImagePickerController.isSourceTypeAvailable(.photoLibrary) {
+            let imagePicker = UIImagePickerController()
+            imagePicker.delegate = self
+            imagePicker.sourceType = .photoLibrary
+            imagePicker.allowsEditing = false
+            self.present(imagePicker, animated: true, completion: nil)
+        }
+    }
     
     @objc func handleSend() {
         guard !(inputTextField.text?.isEmpty ?? false) else { return }
@@ -61,7 +98,37 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         inputTextField.text = nil
     }
     
-    //Añadir imagePickerController aquí
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        let image = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
+        let newImage = image.resizeImageWith(newSize: CGSize(width: 250, height: 250))
+        let data = newImage.jpegData(compressionQuality: 0.9)!
+        
+        let messageImagePath = "channels/\(self.channelUID!)/\(UUID().uuidString).jpg"
+        
+        let messageImage = Storage.storage().reference().child(messageImagePath)
+        _ = messageImage.putData(data, metadata: nil) { (metadata, error) in
+            guard error == nil else {
+                print("Error uploading image")
+                return
+            }
+            messageImage.downloadURL { url, error in
+                if error != nil {
+                    print("Error downloading image url")
+                } else {
+                    print(url!)
+                    self.channelRef.childByAutoId().setValue(
+                        [
+                            "text"          : url?.absoluteString,
+                            "senderUID"     : Auth.auth().currentUser!.uid,
+                            "timeInterval"  : Date().timeIntervalSince1970,
+                            "type"          : "image"
+                        ]
+                    )
+                }
+            }
+        }
+        dismiss(animated:true, completion: nil)
+    }
     
     var bottomConstraint: NSLayoutConstraint?
     
@@ -110,6 +177,28 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
             guard let message = snapshot.value as? [String : AnyObject] else { return }
             self.usersRef.child(message["senderUID"] as! String).observeSingleEvent(of: .value, with: { (snap) in
                 guard let user = snap.value as? [String : AnyObject] else { return }
+                
+                var imageWidth: Double?
+                var imageHeight: Double?
+                
+                let url = URL(string: message["text"] as! String)
+                let type = MessageType(rawValue: message["type"] as! String)!
+                
+                switch type {
+                case .image:
+                    if let imageSource = CGImageSourceCreateWithURL(url! as CFURL, nil) {
+                        if let imageProperties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as Dictionary? {
+                            let pixelImageWidth = imageProperties[kCGImagePropertyPixelWidth] as? Double
+                            let pixelImageHeight = imageProperties[kCGImagePropertyPixelHeight] as? Double
+                            imageWidth = pixelImageWidth! / 3.0
+                            imageHeight = pixelImageHeight! / 3.0
+                        }
+                    }
+                case .text:
+                    imageWidth = nil
+                    imageHeight = nil
+                }
+                
                 let message = Message(
                     uid: messageUID,
                     text: message["text"] as! String,
@@ -121,7 +210,9 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
                         profileImageRaw: user["profileImageURL"] as! String
                     ),
                     timeInterval: message["timeInterval"] as! Double,
-                    type: message["type"] as! String
+                    type: type,
+                    imageWidth: imageWidth,
+                    imageHeight: imageHeight
                 )
                 self.messages.append(message)
                 self.messages = self.messages.sorted(by: { (m1, m2) -> Bool in
@@ -176,10 +267,11 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         messageInputContainerView.addSubview(inputTextField)
         messageInputContainerView.addSubview(sendButton)
         messageInputContainerView.addSubview(topBorderView)
-        //Añadir subview del cameraButton aquí
+        messageInputContainerView.addSubview(cameraButton)
+
+        messageInputContainerView.addConstraintsWithFormat(format: "H:|[v0(60)]-8-[v1][v2(60)]|", views: cameraButton, inputTextField, sendButton)
         
-        messageInputContainerView.addConstraintsWithFormat(format: "H:|-8-[v0][v1(60)]|", views: inputTextField, sendButton)
-        
+        messageInputContainerView.addConstraintsWithFormat(format: "V:|[v0]|", views: cameraButton)
         messageInputContainerView.addConstraintsWithFormat(format: "V:|[v0]|", views: inputTextField)
         messageInputContainerView.addConstraintsWithFormat(format: "V:|[v0]|", views: sendButton)
         
@@ -196,42 +288,56 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! ChatLogMessageCell
         
-        cell.messageTextView.text = messages[indexPath.item].text
+        let message = messages[indexPath.item]
+        
+        cell.profileImageView.kf.indicatorType = .activity
+        cell.profileImageView.kf.setImage(with: URL(string: message.sender.profileImageRaw))
         cell.backgroundColor = .white
         
-        let message = messages[indexPath.item]
-        if true {
-            let messageText = message.text
-            let size = CGSize(width: 250, height: 1000)
-            let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
-            let estimatedFrame = NSString(string: messageText).boundingRect(with: size, options: options, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18)], context: nil)
-            
-            //TODO: Validar con el usuario logueado
-            if Auth.auth().currentUser?.uid != message.sender.uid {
+        let size = CGSize(width: 250, height: 1000)
+        let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
+        let estimatedFrame = NSString(string: message.text).boundingRect(with: size, options: options, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18)], context: nil)
+        
+        switch message.type {
+        case .text:
+            if message.sender.uid != Auth.auth().currentUser!.uid {
+                cell.messageTextView.text = message.text
                 cell.messageTextView.frame = CGRect(x: 48 + 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
                 
                 cell.textBubbleView.frame = CGRect(x: 48 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 16, height: estimatedFrame.height + 20 + 6)
                 
                 cell.profileImageView.isHidden = false
-                cell.profileImageView.kf.indicatorType = .activity
-                cell.profileImageView.kf.setImage(with: URL(string: message.sender.profileImageRaw))
                 
-                //                cell.textBubbleView.backgroundColor = UIColor(white: 0.95, alpha: 1)
                 cell.bubbleImageView.image = ChatLogMessageCell.grayBubbleImage
                 cell.bubbleImageView.tintColor = UIColor(white: 0.95, alpha: 1)
                 cell.messageTextView.textColor = UIColor.black
-                
             } else {
+                cell.messageTextView.text = message.text
                 cell.messageTextView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 16 - 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
                 
                 cell.textBubbleView.frame = CGRect(x: view.frame.width - estimatedFrame.width - 16 - 8 - 16 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 10, height: estimatedFrame.height + 20 + 6)
                 
                 cell.profileImageView.isHidden = true
                 
-                //                cell.textBubbleView.backgroundColor = UIColor(red: 0, green: 137/255, blue: 249/255, alpha: 1)
                 cell.bubbleImageView.image = ChatLogMessageCell.blueBubbleImage
                 cell.bubbleImageView.tintColor = UIColor(red: 225/255, green: 118/255, blue: 57/255, alpha: 1)
                 cell.messageTextView.textColor = UIColor.white
+            }
+        case .image:
+            if message.sender.uid != Auth.auth().currentUser!.uid {
+                cell.messageTextView.text = ""
+                cell.textBubbleView.frame = CGRect(x: 48, y: -4, width: message.imageWidth!, height: message.imageHeight!)
+                
+                cell.profileImageView.isHidden = false
+                cell.bubbleImageView.kf.indicatorType = .activity
+                cell.bubbleImageView.kf.setImage(with: URL(string: message.text))
+            } else {
+                cell.messageTextView.text = ""
+                cell.profileImageView.isHidden = true
+                cell.bubbleImageView.kf.indicatorType = .activity
+                cell.bubbleImageView.kf.setImage(with: URL(string: message.text))
+                
+                cell.textBubbleView.frame = CGRect(x: Double(self.view.frame.width) - message.imageWidth! - 20, y: -4, width: message.imageWidth!, height: message.imageHeight!)
             }
         }
         return cell
@@ -240,16 +346,21 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
     //Ajustar el tamaño de la celda para las imágenes 
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let messageText = messages[indexPath.item].text
-        if true {
+        let message = messages[indexPath.item]
+        let messageText = message.text
+        
+        switch message.type {
+        case .text:
             let size = CGSize(width: 250, height: 1000)
             let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
             let estimatedFrame = NSString(string: messageText).boundingRect(with: size, options: options, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18)], context: nil)
             
             return CGSize(width: view.frame.width, height: estimatedFrame.height + 20)
+        case .image:
+            let screenWidth = Double(view.frame.width)
+            let height = message.imageHeight ?? 200
+            return CGSize(width: screenWidth, height: height)
         }
-        
-        return CGSize(width: view.frame.width, height: 100)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
