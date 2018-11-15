@@ -9,15 +9,23 @@
 import UIKit
 
 struct Message {
+    let uid: String
     let text: String
-    let user: User
-    let isSender: Bool
+    let sender: User
+    let timeInterval: Double
+    let type: String
 }
 
 struct User {
+    let uid: String
+    let email: String
     let name: String
-    let profileImage: UIImage
+    let gender: String
+    let profileImageRaw: String
 }
 
-
+struct Channel {
+    let uid: String
+    let user: User
+}
 //Añadir enum de MessageType aquí

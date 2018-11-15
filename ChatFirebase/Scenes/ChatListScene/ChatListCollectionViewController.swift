@@ -7,8 +7,18 @@
 //
 
 import UIKit
+import Firebase
+import Kingfisher
 
 class ChatListCollectionViewController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
+    
+    var ref: DatabaseReference!
+    var usersRef: DatabaseReference!
+    var channelListRef: DatabaseReference!
+    var channelListRefHandle: DatabaseHandle!
+    
+    var displayedChannels: [Channel] = []
+    var spinner: UIView!
     
     private let cellId = "cellId"
     
@@ -30,6 +40,105 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
         self.navigationController?.navigationBar.tintColor = UIColor(red: 225/255, green: 118/255, blue: 57/255, alpha: 1)
         
         collectionView?.register(FriendCell.self, forCellWithReuseIdentifier: cellId)
+        
+        ref = Database.database().reference()
+        usersRef = ref.child("users")
+        channelListRef = usersRef.child(Auth.auth().currentUser!.uid).child("channelList")
+        spinner = UIViewController.displaySpinner(onView: self.view)
+        
+        let createChatButtonItem = UIBarButtonItem(image: UIImage(named: "PlusIcon")?.resizeImageWith(newSize: CGSize(width: 24, height: 24)), style: .plain, target: self, action: #selector(createChat))
+        let logoutButtonItem = UIBarButtonItem(image: UIImage(named: "LogoutIcon")?.resizeImageWith(newSize: CGSize(width: 24, height: 24)), style: .plain, target: self, action: #selector(logout))
+        self.navigationItem.rightBarButtonItem = createChatButtonItem
+        self.navigationItem.leftBarButtonItem = logoutButtonItem
+
+        observeChannelsChanges()
+    }
+    
+    @objc func logout() {
+        do {
+            try Auth.auth().signOut()
+        } catch let signOutError as NSError {
+            print ("Error signing out: %@", signOutError)
+            return
+        }
+        channelListRef.removeObserver(withHandle: channelListRefHandle)
+        self.dismiss(animated: true, completion: nil)
+    }
+    
+    @objc func createChat() {
+        let alert = UIAlertController(title: "Aviso", message: "Ingresa el correo del usuario con quien quieras chatear", preferredStyle: .alert)
+        alert.addTextField { (textField) in
+            textField.placeholder = "Email"
+        }
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak alert] (_) in
+            let textField = alert?.textFields![0]
+            guard let email = textField?.text, !email.isEmpty, email.contains("@")  else {
+                let alert = UIAlertController(title: "Aviso", message: "Ingresa un correo válido", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                self.present(alert, animated: true)
+                return
+            }
+            guard !self.displayedChannels.contains(where: {$0.user.email == email}) else {
+                let alert = UIAlertController(title: "Aviso", message: "Ya tienes un chat creado con ese usuario, escoge uno nuevo", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                self.present(alert, animated: true)
+                return
+            }
+            self.usersRef.observeSingleEvent(of: .value, with: { (snapshot) in
+                guard let users = snapshot.value as? [String : AnyObject] else { return }
+                var isUserExists = false
+                users.forEach({ (key, value) in
+                    guard let user = value as? [String : AnyObject] else { return }
+                    guard email == user["correo"] as! String else { return }
+                    isUserExists = true
+                    let newChannelId = UUID().uuidString
+                    self.ref.child("channels/\(newChannelId)").setValue("")
+                    self.ref.child("users/\(Auth.auth().currentUser!.uid)/channelList/\(newChannelId)").setValue(key)
+                    self.ref.child("users/\(key)/channelList/\(newChannelId)").setValue(Auth.auth().currentUser!.uid)
+                })
+                if !isUserExists {
+                    let alert = UIAlertController(title: "Aviso", message: "Usuario no encontrado", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+                    self.present(alert, animated: true)
+                }
+            })
+        }))
+        alert.addAction(UIAlertAction(title: "Cancelar", style: .cancel, handler: nil))
+        self.present(alert, animated: true, completion: nil)
+        
+    }
+    
+    func observeChannelsChanges() {
+        channelListRefHandle = channelListRef.observe(.childAdded) { (snapshot) in
+            self.fetchChannels()
+        }
+    }
+    
+    func fetchChannels() {
+        self.usersRef.child(Auth.auth().currentUser!.uid).observeSingleEvent(of: .value, with: { (snapshot) in
+            guard let currentUser = snapshot.value as? [String : AnyObject] else { return }
+            guard let channelsList = currentUser["channelList"] as? [String : AnyObject] else { return }
+            channelsList.forEach({ (key, value) in
+                self.usersRef.child("\(value)").observeSingleEvent(of: .value, with: { (snap) in
+                    guard let user = snap.value as? [String : AnyObject] else { return }
+                    let displayedChannel = Channel(
+                        uid: key,
+                        user: User(
+                            uid: value as! String,
+                            email: user["correo"] as! String,
+                            name: user["nombre"] as! String,
+                            gender: user["genero"] as! String,
+                            profileImageRaw: user["profileImageURL"] as! String
+                    ))
+                    UIViewController.removeSpinner(spinner: self.spinner)
+                    guard !self.displayedChannels.contains(where: {$0.uid == displayedChannel.uid}) else { return }
+                    self.displayedChannels.append(displayedChannel)
+                    DispatchQueue.main.async {
+                        self.collectionView.reloadData()
+                    }
+                })
+            })
+        })
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -40,15 +149,25 @@ class ChatListCollectionViewController: UICollectionViewController, UICollection
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 3
+        return displayedChannels.count
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        return collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath as IndexPath)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath as IndexPath) as! FriendCell
+        let friend = self.displayedChannels[indexPath.row].user
+        cell.nameLabel.text = friend.name
+        //TODO: Cambiar el email por el último mensaje
+        cell.messageLabel.text = friend.email
+        cell.profileImageView.kf.indicatorType = .activity
+        cell.profileImageView.kf.setImage(with: URL(string: friend.profileImageRaw))
+        return cell
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let ChatVC = ChatController(collectionViewLayout: UICollectionViewFlowLayout())
+        let channel = displayedChannels[indexPath.row]
+        ChatVC.channelUID = channel.uid
+        ChatVC.friendName = channel.user.name
         self.navigationController?.pushViewController(ChatVC, animated: true)
     }
     

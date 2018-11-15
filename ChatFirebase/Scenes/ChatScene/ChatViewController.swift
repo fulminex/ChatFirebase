@@ -7,8 +7,18 @@
 //
 
 import UIKit
+import Firebase
+import Kingfisher
 
 class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
+    
+    var channelUID: String!
+    var friendName: String!
+    
+    var ref: DatabaseReference!
+    var usersRef: DatabaseReference!
+    var channelRef: DatabaseReference!
+    var channelRefHandle: DatabaseHandle!
     
     private let cellId = "cellId"
     
@@ -40,31 +50,20 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
     
     @objc func handleSend() {
         guard !(inputTextField.text?.isEmpty ?? false) else { return }
-        let message = Message(text:inputTextField.text!, user: User(name:"Angel Herrera", profileImage: UIImage(named: "UserIcon")!), isSender: false)
-        messages.append(message)
-        
-        let item = messages.count - 1
-        let insertionIndexPath = IndexPath(item: item, section: 0)
-        
-        collectionView?.insertItems(at: [insertionIndexPath])
-        collectionView?.scrollToItem(at: insertionIndexPath, at: .bottom, animated: true)
+        self.channelRef.childByAutoId().setValue(
+            [
+                "text"          : inputTextField.text!,
+                "senderUID"     : Auth.auth().currentUser!.uid,
+                "timeInterval"  : Date().timeIntervalSince1970,
+                "type"          : "text"
+            ]
+        )
         inputTextField.text = nil
     }
     
     //Añadir imagePickerController aquí
     
     var bottomConstraint: NSLayoutConstraint?
-    
-    @objc func simulate() {
-        let message = Message(text:"Mensaje recibido", user: User(name:"Angel Herrera", profileImage: UIImage(named: "UserIcon")!), isSender: true)
-        messages.append(message)
-        
-        let item = messages.count - 1
-        let insertionIndexPath = IndexPath(item: item, section: 0)
-        
-        collectionView?.insertItems(at: [insertionIndexPath])
-        collectionView?.scrollToItem(at: insertionIndexPath, at: .bottom, animated: true)
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,11 +72,9 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
             self.navigationController?.navigationBar.prefersLargeTitles = false
         }
         
-        self.title = "Nombre del usuario 1, Nombre del usuario 2, etc."
+        self.title = self.friendName
         
         self.navigationController?.navigationBar.tintColor = UIColor(red: 225/255, green: 118/255, blue: 57/255, alpha: 1)
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Simulate", style: .plain, target: self, action: #selector(simulate))
         
         tabBarController?.tabBar.isHidden = true
         
@@ -100,14 +97,45 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardNotification), name: UIResponder.keyboardWillHideNotification, object: nil)
         
-        let message = Message(text:"Primer Mensaje", user: User(name:"Anton", profileImage: UIImage(named: "UserIcon")!), isSender: true)
-        print(message.user.name)
-        print(message.isSender)
-        self.messages.append(message)
-        let message2 = Message(text:"Segundo Mensaje", user: User(name:"Anton", profileImage: UIImage(named: "UserIcon")!), isSender: true)
-        self.messages.append(message2)
-        print(self.messages.count)
-        collectionView.reloadData()
+        ref = Database.database().reference()
+        usersRef = ref.child("users")
+        channelRef = ref.child("channels").child(channelUID)
+        
+        observeMessages()
+    }
+    
+    func observeMessages() {
+        channelRefHandle = channelRef.observe(.childAdded) { (snapshot) in
+            let messageUID = snapshot.key
+            guard let message = snapshot.value as? [String : AnyObject] else { return }
+            self.usersRef.child(message["senderUID"] as! String).observeSingleEvent(of: .value, with: { (snap) in
+                guard let user = snap.value as? [String : AnyObject] else { return }
+                let message = Message(
+                    uid: messageUID,
+                    text: message["text"] as! String,
+                    sender: User(
+                        uid: message["senderUID"] as! String,
+                        email: user["correo"] as! String,
+                        name: user["nombre"] as! String,
+                        gender: user["genero"] as! String,
+                        profileImageRaw: user["profileImageURL"] as! String
+                    ),
+                    timeInterval: message["timeInterval"] as! Double,
+                    type: message["type"] as! String
+                )
+                self.messages.append(message)
+                self.messages = self.messages.sorted(by: { (m1, m2) -> Bool in
+                    let date1 = Date(timeIntervalSince1970: m1.timeInterval)
+                    let date2 = Date(timeIntervalSince1970: m2.timeInterval)
+                    return date1.compare(date2) == .orderedAscending
+                })
+                if let item = self.messages.firstIndex(where: { $0.uid == message.uid }) {
+                    let receivingIndexPath = IndexPath(item: item, section: 0)
+                    self.collectionView?.insertItems(at: [receivingIndexPath])
+                    self.collectionView.scrollToItem(at: IndexPath(item: self.messages.count - 1, section: 0), at: .bottom, animated: true)
+                }
+            })
+        }
     }
     
     @objc func handleKeyboardNotification(notification: NSNotification) {
@@ -169,25 +197,24 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! ChatLogMessageCell
         
         cell.messageTextView.text = messages[indexPath.item].text
-        cell.profileImageView.image = messages[indexPath.item].user.profileImage
         cell.backgroundColor = .white
         
         let message = messages[indexPath.item]
         if true {
             let messageText = message.text
-            let profileImage = message.user.profileImage
-            
             let size = CGSize(width: 250, height: 1000)
             let options = NSStringDrawingOptions.usesFontLeading.union(.usesLineFragmentOrigin)
             let estimatedFrame = NSString(string: messageText).boundingRect(with: size, options: options, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 18)], context: nil)
             
             //TODO: Validar con el usuario logueado
-            if message.isSender {
+            if Auth.auth().currentUser?.uid != message.sender.uid {
                 cell.messageTextView.frame = CGRect(x: 48 + 8, y: 0, width: estimatedFrame.width + 16, height: estimatedFrame.height + 20)
                 
                 cell.textBubbleView.frame = CGRect(x: 48 - 10, y: -4, width: estimatedFrame.width + 16 + 8 + 16, height: estimatedFrame.height + 20 + 6)
                 
                 cell.profileImageView.isHidden = false
+                cell.profileImageView.kf.indicatorType = .activity
+                cell.profileImageView.kf.setImage(with: URL(string: message.sender.profileImageRaw))
                 
                 //                cell.textBubbleView.backgroundColor = UIColor(white: 0.95, alpha: 1)
                 cell.bubbleImageView.image = ChatLogMessageCell.grayBubbleImage
